@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.dirname(__FILE__) + '/../lib'
+
+require 'phobos_db_checkpoint'
+require 'phobos_db_checkpoint/cli'
+
+STDOUT.sync = true
+PhobosDBCheckpoint::CLI::Commands.start(ARGV)

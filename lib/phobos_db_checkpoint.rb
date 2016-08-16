@@ -1,5 +1,4 @@
-require "phobos_db_checkpoint/version"
+require 'phobos_db_checkpoint/version'
 
-module PhobosDbCheckpoint
-  # Your code goes here...
+module PhobosDBCheckpoint
 end

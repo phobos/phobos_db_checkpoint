@@ -1,0 +1,15 @@
+development: &default
+  adapter: postgresql
+  encoding: unicode
+  database: phobos-db-checkpoint
+  user: postgres
+  host: localhost
+  port: 5432
+
+test: &test
+  <<: *default
+  database: phobos-test
+
+jenkins:
+  <<: *test
+  host: postgres
