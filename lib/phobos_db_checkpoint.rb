@@ -1,4 +1,37 @@
+require 'yaml'
+require 'active_record'
+
 require 'phobos_db_checkpoint/version'
 
 module PhobosDBCheckpoint
+  DEFAULT_DB_DIR = 'db'.freeze
+  DEFAULT_MIGRATION_PATH = File.join(DEFAULT_DB_DIR, 'migrate').freeze
+  DEFAULT_DB_CONFIG_PATH = 'config/database.yml'.freeze
+
+  class << self
+    attr_reader :db_config
+    attr_accessor :db_config_path, :db_dir, :migration_path
+
+    def configure
+      load_db_config
+      at_exit { PhobosDBCheckpoint.close_db_connection }
+      ActiveRecord::Base.establish_connection(db_config)
+    end
+
+    def env
+      ENV['RAILS_ENV'] ||= ENV['RACK_ENV'] ||= 'development'
+    end
+
+    def load_db_config
+      @db_config_path ||= DEFAULT_DB_CONFIG_PATH
+      configs = YAML.load_file(File.expand_path(@db_config_path))
+      @db_config = configs[env]
+    end
+
+    def close_db_connection
+      connection = ActiveRecord::Base.connection
+      connection.disconnect! if connection
+    rescue ActiveRecord::ConnectionNotEstablished
+    end
+  end
 end

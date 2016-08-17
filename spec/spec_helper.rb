@@ -56,6 +56,10 @@ RSpec.configure do |config|
     config.default_formatter = 'doc'
   end
 
+  config.before(:each) do
+    ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
+  end
+
   # Print the 10 slowest examples and example groups at the
   # end of the spec run, to help surface which specs are running
   # particularly slow.
