@@ -69,4 +69,47 @@ RSpec.describe PhobosDBCheckpoint do
     end
   end
 
+  describe '.load_tasks' do
+    after do
+      PhobosDBCheckpoint.db_dir = nil
+      PhobosDBCheckpoint.migration_path = nil
+    end
+
+    it 'sets db_dir to DEFAULT_DB_DIR if not set' do
+      PhobosDBCheckpoint.db_dir = nil
+      PhobosDBCheckpoint.load_tasks
+      expect(PhobosDBCheckpoint.db_dir).to eql PhobosDBCheckpoint::DEFAULT_DB_DIR
+
+      PhobosDBCheckpoint.db_dir = 'other'
+      PhobosDBCheckpoint.load_tasks
+      expect(PhobosDBCheckpoint.db_dir).to eql 'other'
+    end
+
+    it 'sets migration_path to DEFAULT_MIGRATION_PATH if not set' do
+      PhobosDBCheckpoint.migration_path = nil
+      PhobosDBCheckpoint.load_tasks
+      expect(PhobosDBCheckpoint.migration_path).to eql PhobosDBCheckpoint::DEFAULT_MIGRATION_PATH
+
+      PhobosDBCheckpoint.migration_path = 'other'
+      PhobosDBCheckpoint.load_tasks
+      expect(PhobosDBCheckpoint.migration_path).to eql 'other'
+    end
+
+    it 'redefines ActiveRecord::Tasks::DatabaseTasks to return db_dir' do
+      PhobosDBCheckpoint.db_dir = 'phobos_db_checkpoint'
+      PhobosDBCheckpoint.load_tasks
+      expect(ActiveRecord::Tasks::DatabaseTasks.db_dir).to eql 'phobos_db_checkpoint'
+    end
+
+    it 'redefines ActiveRecord::Tasks::DatabaseTasks to return migrations_path' do
+      PhobosDBCheckpoint.migration_path = 'phobos_migration_path'
+      PhobosDBCheckpoint.load_tasks
+      expect(ActiveRecord::Tasks::DatabaseTasks.migrations_paths).to eql ['phobos_migration_path']
+    end
+
+    it 'redefines ActiveRecord::Tasks::DatabaseTasks to return env' do
+      PhobosDBCheckpoint.load_tasks
+      expect(ActiveRecord::Tasks::DatabaseTasks.env).to eql PhobosDBCheckpoint.env
+    end
+  end
 end

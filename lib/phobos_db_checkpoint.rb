@@ -33,5 +33,14 @@ module PhobosDBCheckpoint
       connection.disconnect! if connection
     rescue ActiveRecord::ConnectionNotEstablished
     end
+
+    def load_tasks
+      @db_dir ||= DEFAULT_DB_DIR
+      @migration_path ||= DEFAULT_MIGRATION_PATH
+      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :db_dir) { PhobosDBCheckpoint.db_dir }
+      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :migrations_paths) { [PhobosDBCheckpoint.migration_path] }
+      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :env) { PhobosDBCheckpoint.env }
+      require 'phobos_db_checkpoint/tasks'
+    end
   end
 end
