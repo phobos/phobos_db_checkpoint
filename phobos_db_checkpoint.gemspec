@@ -6,8 +6,22 @@ require 'phobos_db_checkpoint/version'
 Gem::Specification.new do |spec|
   spec.name          = 'phobos_db_checkpoint'
   spec.version       = PhobosDBCheckpoint::VERSION
-  spec.authors       = ['Túlio Ornelas']
-  spec.email         = ['tulio.ornelas@klarna.com']
+  spec.authors       = [
+    'Túlio Ornelas',
+    'Mathias Klippinge',
+    'Sergey Evstifeev',
+    'Thiago R. Colucci',
+    'Martin Svalin',
+    'Francisco Juan'
+  ]
+  spec.email         = [
+    'ornelas.tulio@gmail.com',
+    'mathias.klippinge@gmail.com',
+    'sergey.evstifeev@gmail.com',
+    'ticolucci@gmail.com',
+    'martin@lite.nu',
+    'francisco.juan@gmail.com'
+  ]
 
   spec.summary       = %q{Write a short summary, because Rubygems requires one.}
   spec.description   = %q{Write a longer description or delete this line.}
@@ -23,7 +37,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = 'exe'
+  spec.bindir        = 'bin'
   spec.executables   = spec.files.grep(%r{^bin/phobos_db_checkpoint}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
