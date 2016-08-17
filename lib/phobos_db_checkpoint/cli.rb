@@ -16,7 +16,7 @@ module PhobosDBCheckpoint
 
       desc 'init', 'Initialize your project with PhobosDBCheckpoint'
       def init
-        create_file 'Rakefile'
+        create_file('Rakefile') unless File.exist?(File.join(destination_root, 'Rakefile'))
         prepend_to_file 'Rakefile', "require 'phobos_db_checkpoint'\nPhobosDBCheckpoint.load_tasks\n"
         copy_file 'templates/database.yml.example', 'config/database.yml'
         each_migrations_with_number do |name, number|
