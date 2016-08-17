@@ -6,21 +6,9 @@ RSpec.describe PhobosDBCheckpoint::CLI do
   let(:root) { File.expand_path(File.join(File.dirname(__FILE__), '../../..')) }
   let(:destination_root) { File.join(root, 'spec/tmp') }
 
-  let :regular_rakefile do
-    <<~FILE
-      require 'bundler/gem_tasks'
-      require 'rspec/core/rake_task'
-
-      RSpec::Core::RakeTask.new(:spec)
-
-      task :default => :spec
-    FILE
-  end
-
   before do
     FileUtils.rm_rf(destination_root)
     FileUtils.mkdir_p(destination_root)
-    File.write(File.join(destination_root, 'Rakefile'), regular_rakefile)
   end
 
   after do
@@ -39,14 +27,8 @@ RSpec.describe PhobosDBCheckpoint::CLI do
       expect(File.exists?('spec/tmp/Rakefile')).to eql true
       expect(File.read(File.join(destination_root, 'Rakefile')))
         .to eql <<~FILE
-          require 'bundler/gem_tasks'
           require 'phobos_db_checkpoint'
           PhobosDBCheckpoint.load_tasks
-          require 'rspec/core/rake_task'
-
-          RSpec::Core::RakeTask.new(:spec)
-
-          task :default => :spec
         FILE
     end
 

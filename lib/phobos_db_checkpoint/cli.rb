@@ -16,7 +16,8 @@ module PhobosDBCheckpoint
 
       desc 'init', 'Initialize your project with PhobosDBCheckpoint'
       def init
-        insert_into_file 'Rakefile', "\nrequire 'phobos_db_checkpoint'\nPhobosDBCheckpoint.load_tasks", after: %r{require\s+["']bundler/gem_tasks["']}
+        create_file 'Rakefile'
+        prepend_to_file 'Rakefile', "require 'phobos_db_checkpoint'\nPhobosDBCheckpoint.load_tasks\n"
         copy_file 'templates/database.yml.example', 'config/database.yml'
         each_migrations_with_number do |name, number|
           copy_file "templates/migrate/#{name}", "db/migrate/#{number}_#{name}"
