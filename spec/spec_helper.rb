@@ -10,7 +10,6 @@ require 'pg'
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 SPEC_DB_DIR = 'spec/setup'
-FileUtils.rm_rf(SPEC_DB_DIR)
 
 def setup_test_env
   PhobosDBCheckpoint.db_config_path = 'spec/database.test.yml'
@@ -20,13 +19,20 @@ end
 
 PhobosDBCheckpoint.load_tasks
 setup_test_env
+
+begin
+  Rake.application['db:environment:set'].invoke
+  Rake.application['db:drop'].invoke
+rescue ActiveRecord::NoDatabaseError
+end
+
+FileUtils.rm_rf(SPEC_DB_DIR)
 `./bin/phobos_db_checkpoint copy-migrations -d #{PhobosDBCheckpoint.migration_path}`
 
-PhobosDBCheckpoint.configure
-Rake.application['db:drop'].invoke
 Rake.application['db:create'].invoke
 Rake.application['db:migrate'].invoke
 
+PhobosDBCheckpoint.configure
 DatabaseCleaner.strategy = :truncation
 DatabaseCleaner::ActiveRecord.config_file_location = PhobosDBCheckpoint.db_config
 

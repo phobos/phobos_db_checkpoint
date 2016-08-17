@@ -2,6 +2,7 @@ require 'yaml'
 require 'active_record'
 
 require 'phobos_db_checkpoint/version'
+require 'phobos_db_checkpoint/event'
 
 module PhobosDBCheckpoint
   DEFAULT_DB_DIR = 'db'.freeze
