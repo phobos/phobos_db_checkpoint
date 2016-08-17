@@ -8,8 +8,4 @@ development: &default
 
 test: &test
   <<: *default
-  database: phobos-test
-
-jenkins:
-  <<: *test
-  host: postgres
+  database: phobos-db-checkpoint-test
