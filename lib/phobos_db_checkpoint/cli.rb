@@ -20,7 +20,7 @@ module PhobosDBCheckpoint
         prepend_to_file 'Rakefile', "require 'phobos_db_checkpoint'\nPhobosDBCheckpoint.load_tasks\n"
         copy_file 'templates/database.yml.example', 'config/database.yml'
         each_migrations_with_number do |name, number|
-          copy_file "templates/migrate/#{name}", "db/migrate/#{number}_#{name}"
+          template "templates/migrate/#{name}", "db/migrate/#{number}_#{name.gsub(/\.erb$/, '')}"
         end
       end
 
@@ -36,7 +36,7 @@ module PhobosDBCheckpoint
 
       def each_migrations_with_number
         migrations_dir = self.class.migrations_template_dir
-        original_paths = Dir.entries(migrations_dir).select {|f| f =~ /\.rb$/}
+        original_paths = Dir.entries(migrations_dir).select {|f| f =~ /\.rb(\.erb)?$/}
         original_paths.each_with_index do |path, index|
           number = [Time.now.utc.strftime('%Y%m%d%H%M%S%6N'), '%.21d' % index].max
           name = path.split('/').last

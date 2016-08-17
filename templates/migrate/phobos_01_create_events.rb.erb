@@ -1,4 +1,4 @@
-class Phobos01CreateEvents < ActiveRecord::Migration
+class Phobos01CreateEvents < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
   def up
     create_table :events do |t|
       t.string    :topic,         index: true
