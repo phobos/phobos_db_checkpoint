@@ -53,6 +53,13 @@ RSpec.describe PhobosDBCheckpoint::CLI do
         expect(generated_migrations.find { |m| m =~ /\d+_#{migration}/ }).to_not be_nil
       end
     end
+
+    it 'add db:migrate to phobos_boot.rb' do
+      invoke_cmd
+      expect(File.exists?('spec/tmp/phobos_boot.rb')).to eql true
+      expect(File.read(File.join(destination_root, 'phobos_boot.rb')))
+        .to eql File.read(File.join(root, 'templates/phobos_boot.rb'))
+    end
   end
 
 end

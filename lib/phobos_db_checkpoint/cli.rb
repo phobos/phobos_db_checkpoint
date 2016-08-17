@@ -28,6 +28,9 @@ module PhobosDBCheckpoint
             say_status 'exists', metadata[:name]
           end
         end
+
+        create_file('phobos_boot.rb') unless File.exist?(File.join(destination_root, 'phobos_boot.rb'))
+        append_to_file 'phobos_boot.rb', File.read(phobos_boot_template)
       end
 
       def self.source_root
@@ -58,6 +61,10 @@ module PhobosDBCheckpoint
 
       def migrations_template_dir
         File.join(self.class.source_root, 'templates/migrate')
+      end
+
+      def phobos_boot_template
+        File.join(self.class.source_root, 'templates/phobos_boot.rb')
       end
     end
   end
