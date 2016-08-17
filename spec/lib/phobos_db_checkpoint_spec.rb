@@ -1,10 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe PhobosDBCheckpoint do
-  before do
-    PhobosDBCheckpoint.db_config_path = 'spec/fixtures/database.test.yml'
-  end
-
   describe '.configure' do
     it 'loads db config and establish the connection' do
       expect(PhobosDBCheckpoint)
@@ -28,6 +24,8 @@ RSpec.describe PhobosDBCheckpoint do
   end
 
   describe '.env' do
+    after { ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test' }
+
     it 'returns "development" by default' do
       ENV['RAILS_ENV'] = ENV['RACK_ENV'] = nil
       expect(PhobosDBCheckpoint.env).to eql 'development'

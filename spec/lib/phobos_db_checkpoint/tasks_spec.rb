@@ -3,11 +3,6 @@ require 'phobos_db_checkpoint/tasks'
 
 RSpec.describe PhobosDBCheckpoint::Tasks do
 
-  before do
-    PhobosDBCheckpoint.db_config_path = 'spec/fixtures/database.test.yml'
-    PhobosDBCheckpoint.load_tasks
-  end
-
   it 'loads db tasks' do
     expect(Rake.application.tasks.map(&:name))
       .to include *%w(
@@ -28,13 +23,6 @@ RSpec.describe PhobosDBCheckpoint::Tasks do
         db:structure:load
         db:version
       )
-  end
-
-  describe 'db:environment' do
-    it 'calls configure' do
-      expect(PhobosDBCheckpoint).to receive(:configure)
-      Rake.application['db:environment'].invoke
-    end
   end
 
   describe 'db:load_config' do

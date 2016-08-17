@@ -1,4 +1,5 @@
 require 'thor'
+require 'fileutils'
 
 module PhobosDBCheckpoint
   module CLI
@@ -20,17 +21,36 @@ module PhobosDBCheckpoint
         prepend_to_file 'Rakefile', "require 'phobos_db_checkpoint'\nPhobosDBCheckpoint.load_tasks\n"
         copy_file 'templates/database.yml.example', 'config/database.yml'
 
-        generated_migrations = list_migrations(File.join(destination_root, 'db/migrate'))
-        template_migrations_metadata.each do |metadata|
-          unless generated_migrations.find { |filename| filename =~ /#{metadata[:name]}/ }
-            template "templates/migrate/#{metadata[:path]}", "db/migrate/#{metadata[:number]}_#{metadata[:name]}"
-          else
-            say_status 'exists', metadata[:name]
-          end
-        end
+        cmd = self.class.new
+        cmd.destination_root = destination_root
+        cmd.invoke(:copy_migrations)
 
         create_file('phobos_boot.rb') unless File.exist?(File.join(destination_root, 'phobos_boot.rb'))
         append_to_file 'phobos_boot.rb', File.read(phobos_boot_template)
+      end
+
+      desc 'copy-migrations', 'Copy required migrations to the project'
+      option :destination,
+             aliases: ['-d'],
+             default: 'db/migrate',
+             banner: 'Destination folder relative to your project'
+      def copy_migrations
+        destination_fullpath = File.join(destination_root, options[:destination])
+        generated_migrations = list_migrations(destination_fullpath)
+        FileUtils.mkdir_p(destination_fullpath)
+
+        template_migrations_metadata.each do |metadata|
+
+          if migration_exists?(generated_migrations, metadata[:name])
+            say_status('exists', metadata[:name])
+
+          else
+            file_path = File.join(options[:destination], "#{metadata[:number]}_#{metadata[:name]}")
+            template_path = File.join('templates/migrate', metadata[:path])
+            template(template_path, file_path)
+          end
+
+        end
       end
 
       def self.source_root
@@ -38,6 +58,10 @@ module PhobosDBCheckpoint
       end
 
       private
+      def migration_exists?(list, name)
+        list.find { |filename| filename =~ /#{name}/ }
+      end
+
       def template_migrations_metadata
         @template_migrations_metadata ||= begin
           index = 0

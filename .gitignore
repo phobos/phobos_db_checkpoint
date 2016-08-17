@@ -10,4 +10,6 @@
 spec/tmp/
 .DS_Store
 spec/examples.txt
+spec/setup/
+spec/tmp/
 .byebug_history

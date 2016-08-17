@@ -1,6 +1,34 @@
+require 'bundler/setup'
+
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'phobos_db_checkpoint'
+
+require 'fileutils'
 require 'pry-byebug'
+require 'database_cleaner'
+require 'pg'
+
+ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
+SPEC_DB_DIR = 'spec/setup'
+FileUtils.rm_rf(SPEC_DB_DIR)
+
+def setup_test_env
+  PhobosDBCheckpoint.db_config_path = 'spec/database.test.yml'
+  PhobosDBCheckpoint.db_dir = SPEC_DB_DIR
+  PhobosDBCheckpoint.migration_path = File.join(SPEC_DB_DIR, 'migrate')
+end
+
+PhobosDBCheckpoint.load_tasks
+setup_test_env
+`./bin/phobos_db_checkpoint copy-migrations -d #{PhobosDBCheckpoint.migration_path}`
+
+PhobosDBCheckpoint.configure
+Rake.application['db:drop'].invoke
+Rake.application['db:create'].invoke
+Rake.application['db:migrate'].invoke
+
+DatabaseCleaner.strategy = :truncation
+DatabaseCleaner::ActiveRecord.config_file_location = PhobosDBCheckpoint.db_config
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
@@ -57,7 +85,15 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
+    setup_test_env
+  end
+
+  config.before(:each, type: :db) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each, type: :db) do
+    DatabaseCleaner.clean
   end
 
   # Print the 10 slowest examples and example groups at the

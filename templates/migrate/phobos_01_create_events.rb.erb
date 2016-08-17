@@ -2,7 +2,7 @@ class Phobos01CreateEvents < ActiveRecord::Migration[<%= ActiveRecord::Migration
   def up
     create_table :events do |t|
       t.string    :topic,         index: true
-      t.string    :consumer,      index: true
+      t.string    :group_id,      index: true
       t.string    :entity_id,     index: true
       t.timestamp :event_time,    index: true
       t.string    :event_type,    index: true
@@ -11,7 +11,7 @@ class Phobos01CreateEvents < ActiveRecord::Migration[<%= ActiveRecord::Migration
       t.json      :payload
     end
 
-    add_index :events, [:topic, :consumer, :checksum]
+    add_index :events, [:topic, :group_id, :checksum]
   end
 
   def down
