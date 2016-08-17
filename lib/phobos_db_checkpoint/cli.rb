@@ -19,8 +19,14 @@ module PhobosDBCheckpoint
         create_file('Rakefile') unless File.exist?(File.join(destination_root, 'Rakefile'))
         prepend_to_file 'Rakefile', "require 'phobos_db_checkpoint'\nPhobosDBCheckpoint.load_tasks\n"
         copy_file 'templates/database.yml.example', 'config/database.yml'
-        each_migrations_with_number do |name, number|
-          template "templates/migrate/#{name}", "db/migrate/#{number}_#{name.gsub(/\.erb$/, '')}"
+
+        generated_migrations = list_migrations(File.join(destination_root, 'db/migrate'))
+        template_migrations_metadata.each do |metadata|
+          unless generated_migrations.find { |filename| filename =~ /#{metadata[:name]}/ }
+            template "templates/migrate/#{metadata[:path]}", "db/migrate/#{metadata[:number]}_#{metadata[:name]}"
+          else
+            say_status 'exists', metadata[:name]
+          end
         end
       end
 
@@ -28,22 +34,31 @@ module PhobosDBCheckpoint
         File.expand_path(File.join(File.dirname(__FILE__), '../..'))
       end
 
-      def self.migrations_template_dir
-        File.join(source_root, 'templates/migrate')
-      end
-
       private
-
-      def each_migrations_with_number
-        migrations_dir = self.class.migrations_template_dir
-        original_paths = Dir.entries(migrations_dir).select {|f| f =~ /\.rb(\.erb)?$/}
-        original_paths.each_with_index do |path, index|
-          number = [Time.now.utc.strftime('%Y%m%d%H%M%S%6N'), '%.21d' % index].max
-          name = path.split('/').last
-          yield(path, number)
+      def template_migrations_metadata
+        @template_migrations_metadata ||= begin
+          index = 0
+          template_migrations.map do |path|
+            number = [Time.now.utc.strftime('%Y%m%d%H%M%S%6N'), '%.21d' % index].max
+            name = path.split('/').last
+            index += 1
+            {path: path, name: path.gsub(/\.erb$/, ''), number: number}
+          end
         end
       end
 
+      def template_migrations
+        @template_migrations ||= list_migrations(migrations_template_dir)
+      end
+
+      def list_migrations(dir)
+        return [] unless Dir.exist?(dir)
+        Dir.entries(dir).select {|f| f =~ /\.rb(\.erb)?$/}
+      end
+
+      def migrations_template_dir
+        File.join(self.class.source_root, 'templates/migrate')
+      end
     end
   end
 end

@@ -13,7 +13,7 @@ RSpec.describe PhobosDBCheckpoint do
 
       expect(ActiveRecord::Base)
         .to receive(:establish_connection)
-        .with(PhobosDBCheckpoint.db_config)
+        .with(hash_including('database' => 'phobos-db-checkpoint-test'))
 
       PhobosDBCheckpoint.configure
     end
