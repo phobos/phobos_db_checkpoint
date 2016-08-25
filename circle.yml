@@ -1,0 +1,24 @@
+machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+  services:
+    - docker
+  environment:
+    LOG_LEVEL: DEBUG
+    CI: true
+  ruby:
+    version: 2.3.1
+
+dependencies:
+  pre:
+    - docker -v
+    - docker pull postgres:9.5.4
+    - gem install bundler -v 1.9.5
+    - bundle install
+
+test:
+  override:
+    - docker run -d -p 5432:5432 --name db postgres; sleep 5
+    - bundle exec rspec -r rspec_junit_formatter --format RspecJunitFormatter -o $CIRCLE_TEST_REPORTS/rspec/unit.xml
+  post:
+    - cp log/*.log $CIRCLE_ARTIFACTS/ || true
