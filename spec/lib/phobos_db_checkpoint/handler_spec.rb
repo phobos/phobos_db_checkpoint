@@ -9,7 +9,7 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
 
   let(:handler) { TestPhobosDbCheckpointHander.new }
   let(:entity_id) { SecureRandom.uuid }
-  let(:event_time) { Time.now }
+  let(:event_time) { Time.now.utc }
   let(:event_type) { 'event-type' }
   let(:event_version) { 'v1' }
 
@@ -46,7 +46,7 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
         event = PhobosDBCheckpoint::Event.last
         expect(event).to_not be_nil
         expect(event.entity_id).to eql entity_id
-        expect(event.event_time).to eql event_time
+        expect(event.event_time.strftime('%F %T')).to eql event_time.strftime('%F %T')
         expect(event.event_type).to eql event_type
         expect(event.event_version).to eql event_version
 
