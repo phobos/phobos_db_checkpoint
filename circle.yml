@@ -12,6 +12,7 @@ machine:
 # Ignores circle ci default database setup
 database:
   override:
+    - echo "overrides circle CI commands"
 
 dependencies:
   pre:
