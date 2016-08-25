@@ -1,6 +1,3 @@
-# Temporary require while phobos[>= 1.0.0] is not published
-require 'bundler/setup'
-
 require 'yaml'
 require 'digest'
 require 'active_record'
