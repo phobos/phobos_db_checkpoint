@@ -1,3 +1,5 @@
+![CircleCI](https://circleci.com/gh/klarna/phobos_db_checkpoint/tree/master.svg?style=shield&circle-token=a69fda09f130a862b69f6a7e8be834f884829ccd)
+
 # PhobosDBCheckpoint
 
 PhobosDBCheckpoint is an addition to [Phobos](https://github.com/klarna/phobos) which automatically saves your kafka events to the database. It ensures that your [handler](https://github.com/klarna/phobos#usage-consuming-messages-from-kafka) will consume messages only once, it allows your system to reprocess events and go back in time if needed.
