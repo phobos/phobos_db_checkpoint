@@ -23,15 +23,15 @@ Gem::Specification.new do |spec|
     'francisco.juan@gmail.com'
   ]
 
-  spec.summary       = %q{Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{Write a longer description or delete this line.}
+  spec.summary       = %q{PhobosDBCheckpoint is an addition to Phobos which automatically saves your kafka events to the database}
+  spec.description   = %q{PhobosDBCheckpoint is an addition to Phobos which automatically saves your kafka events to the database. It ensures that your handler will consume messages only once, it allows your system to reprocess events and go back in time if needed.}
   spec.homepage      = "https://github.com/klarna/phobos_db_checkpoint"
   spec.license       = 'Apache License Version 2.0'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+    spec.metadata['allowed_push_host'] = 'https://rubygems.org'
   else
     raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
   end
@@ -52,5 +52,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rake'
   spec.add_dependency 'activerecord', '>= 4.0.0'
   spec.add_dependency 'phobos', '>= 1.0.0'
-
 end
