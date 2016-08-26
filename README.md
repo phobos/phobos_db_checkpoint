@@ -32,6 +32,8 @@ Or install it yourself as:
 
 ## <a name="usage"></a> Usage
 
+The main idea of `PhobosDBCheckpoint` is to enhance the default `Phobos::Handler`. So, in order to use it's convenience, you'll be required to [setup the database](#setup) and then switch your handler to use the [PhobosDBCheckpoint::Handler](#handler).
+
 ### <a name="setup"></a> Setup
 
 PhobosDBCheckpoint exposes a CLI to help you setup your project, assuming an [already configured phobos project](https://github.com/klarna/phobos#usage-standalone-apps). Example:
