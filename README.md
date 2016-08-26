@@ -2,7 +2,7 @@
 
 # PhobosDBCheckpoint
 
-PhobosDBCheckpoint is an addition to [Phobos](https://github.com/klarna/phobos) which automatically saves your kafka events to the database. It ensures that your [handler](https://github.com/klarna/phobos#usage-consuming-messages-from-kafka) will consume messages only once, it allows your system to reprocess events and go back in time if needed.
+PhobosDBCheckpoint is a plugin to [Phobos](https://github.com/klarna/phobos) which automatically saves your kafka events to the database. It ensures that your [handler](https://github.com/klarna/phobos#usage-consuming-messages-from-kafka) will consume messages only once while also allowing your system to reprocess events and go back in time if needed.
 
 ## Table of Contents
 
@@ -37,7 +37,7 @@ Or install it yourself as:
 PhobosDBCheckpoint exposes a CLI to help you setup your project, assuming an [already configured phobos project](https://github.com/klarna/phobos#usage-standalone-apps). Example:
 
 ```sh
-# call this command inside your app folder
+# run this command inside your app directory
 $ phobos_db_checkpoint init
       create  Rakefile
      prepend  Rakefile
@@ -46,9 +46,9 @@ $ phobos_db_checkpoint init
       append  phobos_boot.rb
 ```
 
-The __init__ command will copy the necessary migrations, an example of `database.yml`, and it will add the necessary bits into `phobos_boot.rb` and `Rakefile` for your convenience.
+The __init__ command will generate the base migrations, an example of `database.yml`, and add the default configuration into `phobos_boot.rb` and `Rakefile` for your convenience.
 
-After init, your app should have access to all db tasks.
+After this, your app should have access to all db tasks.
 
 ```sh
 $ rake -T
@@ -72,7 +72,7 @@ $ rake -T
 
 ##### Note
 
-You can always copy the migrations again using the command __copy-migrations__, example:
+You can always re-generate the base migrations using the command __copy-migrations__, example:
 
 ```sh
 $ phobos_db_checkpoint copy-migrations
@@ -83,7 +83,7 @@ This command has no side effects, if the migration is already present it will ig
 
 ### <a name="handler"></a> Handler
 
-In order to use the database checkpointing your handler must include `PhobosDBCheckpoint::Handler`, this module already includes `Phobos::Handler`. PhobosDBCheckpoint will only save acknowledged events, your consumer must also call `ack` with the __entity_id__ and __event_time__ of your event, example:
+In order to use the database checkpointing your handler must include `PhobosDBCheckpoint::Handler`, this module already includes `Phobos::Handler`. PhobosDBCheckpoint will only save acknowledged events, your consumer must also return an `ack` with the __entity_id__ and __event_time__ of your event, example:
 
 ```ruby
 class MyHandler
@@ -140,7 +140,7 @@ Some operations are instrumented using [Phobos::Instrumentation](https://github.
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rspec spec` to run the tests.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem in your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
