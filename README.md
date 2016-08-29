@@ -5,7 +5,7 @@
 Phobos DB Checkpoint is a plugin to [Phobos](https://github.com/klarna/phobos) and is meant as a drop in replacement to `Phobos::Handler`, extending it with the following features:
  * Persists your Kafka events to an active record compatible database
  * Ensures that your [handler](https://github.com/klarna/phobos#usage-consuming-messages-from-kafka) will consume messages only once
- * Allows your system to reprocess events in case of failures
+ * Allows your system to quickly reprocess events in case of failures
 
 ## Table of Contents
 
@@ -39,7 +39,7 @@ The main idea of `PhobosDBCheckpoint` is to enhance the default `Phobos::Handler
 
 ### <a name="setup"></a> Setup
 
-PhobosDBCheckpoint exposes a CLI to help you setup your project, assuming an [already configured phobos project](https://github.com/klarna/phobos#usage-standalone-apps). Example:
+Phobos DB Checkpoint exposes a CLI to help you setup your project, assuming an [already configured phobos project](https://github.com/klarna/phobos#usage-standalone-apps). Example:
 
 ```sh
 # run this command inside your app directory
