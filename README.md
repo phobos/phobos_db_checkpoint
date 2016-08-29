@@ -35,7 +35,9 @@ Or install it yourself as:
 
 ## <a name="usage"></a> Usage
 
-The main idea of `PhobosDBCheckpoint` is to enhance the default `Phobos::Handler`. So, in order to use it's convenience, you'll be required to [setup the database](#setup) and then switch your handler to use the [PhobosDBCheckpoint::Handler](#handler).
+The main idea of Phobos DB Checkpoint is to replace the default handler `Phobos::Handler` with `PhobosDBCheckpoint::Handler`.
+
+In order to use it, you have to [setup the database](#setup) and [switch your handler](#handler) to use the `PhobosDBCheckpoint::Handler` instead.
 
 ### <a name="setup"></a> Setup
 
@@ -88,7 +90,9 @@ This command has no side effects, if the migration is already present it will ig
 
 ### <a name="handler"></a> Handler
 
-In order to use the database checkpointing, your handler should include `PhobosDBCheckpoint::Handler` instead of `Phobos::Handler`. Phobos DB Checkpoint will only save acknowledged events, your consumer must also return an `ack` with the __entity_id__ and __event_time__ of your event, example:
+In order to use the database checkpointing, your handler should be changed to include `PhobosDBCheckpoint::Handler` instead of `Phobos::Handler`. Phobos DB Checkpoint handler makes use the Phobos `around_consume` functionality, which means you need to implement a `#consume` method to handle the event.
+
+Since Phobos DB Checkpoint will only save acknowledged events, you need to return from `#consume` with an invocation to `#ack` with the __entity_id__ and __event_time__ of your event. Example:
 
 ```ruby
 class MyHandler
@@ -96,6 +100,7 @@ class MyHandler
 
   def consume(payload, metadata)
     my_event = JSON.parse(payload)
+    # <-- your logic (which possibly skips messages) here
     ack(my_event['id'], Time.now)
   end
 end
@@ -103,7 +108,7 @@ end
 
 If your handler returns anything different than an __ack__ it won't be saved to the database.
 
-`PhobosDBCheckpoint::Handler` will automatically skip already handled events (i.e. duplicate Kafka messages).
+Note that the `PhobosDBCheckpoint::Handler` will automatically skip already handled events (i.e. duplicate Kafka messages).
 
 ### <a name="accessing-the-events">Accessing the events</a>
 
