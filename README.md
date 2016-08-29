@@ -1,8 +1,11 @@
 ![CircleCI](https://circleci.com/gh/klarna/phobos_db_checkpoint/tree/master.svg?style=shield&circle-token=a69fda09f130a862b69f6a7e8be834f884829ccd)
 
-# PhobosDBCheckpoint
+# Phobos DB Checkpoint
 
-PhobosDBCheckpoint is a plugin to [Phobos](https://github.com/klarna/phobos) which automatically saves your kafka events to the database. It ensures that your [handler](https://github.com/klarna/phobos#usage-consuming-messages-from-kafka) will consume messages only once while also allowing your system to reprocess events and go back in time if needed.
+Phobos DB Checkpoint is a plugin to [Phobos](https://github.com/klarna/phobos) and is meant as a drop in replacement to `Phobos::Handler`, extending it with the following features:
+ * Persists your Kafka events to an active record compatible database
+ * Ensures that your [handler](https://github.com/klarna/phobos#usage-consuming-messages-from-kafka) will consume messages only once
+ * Allows your system to reprocess events in case of failures
 
 ## Table of Contents
 
@@ -85,7 +88,7 @@ This command has no side effects, if the migration is already present it will ig
 
 ### <a name="handler"></a> Handler
 
-In order to use the database checkpointing your handler must include `PhobosDBCheckpoint::Handler`, this module already includes `Phobos::Handler`. PhobosDBCheckpoint will only save acknowledged events, your consumer must also return an `ack` with the __entity_id__ and __event_time__ of your event, example:
+In order to use the database checkpointing, your handler should include `PhobosDBCheckpoint::Handler` instead of `Phobos::Handler`. Phobos DB Checkpoint will only save acknowledged events, your consumer must also return an `ack` with the __entity_id__ and __event_time__ of your event, example:
 
 ```ruby
 class MyHandler
@@ -100,6 +103,8 @@ end
 
 If your handler returns anything different than an __ack__ it won't be saved to the database.
 
+`PhobosDBCheckpoint::Handler` will automatically skip already handled events (i.e. duplicate Kafka messages).
+
 ### <a name="accessing-the-events">Accessing the events</a>
 
 `PhobosDBCheckpoint::Event` is a plain `ActiveRecord::Base` model, feel free to play with it.
@@ -110,25 +115,12 @@ Some operations are instrumented using [Phobos::Instrumentation](https://github.
 
 #### Handler notifications
 
-  * `db_checkpoint.event_acknowledged` is sent when the event is acknowledged (saved). It includes the following payload:
-    * listener_id
-    * group_id
-    * topic
-    * key
-    * partition
-    * offset
-    * retry_count
-    * checksum
-  * `db_checkpoint.event_skipped` is sent when the event is not saved to the database. It includes the following payload:
-    * listener_id
-    * group_id
-    * topic
-    * key
-    * partition
-    * offset
-    * retry_count
-    * checksum
-  * `db_checkpoint.event_already_consumed` is sent when the handler receives an existing message. It includes the following payload:
+Overview of the built in notifications:
+  * `db_checkpoint.event_acknowledged` is sent when the event is acknowledged (saved)
+  * `db_checkpoint.event_skipped` is sent when the event is skipped (not saved)
+  * `db_checkpoint.event_already_consumed` is sent when the handler receives an existing message (not saved)
+
+The following payload is included for all notifications:
     * listener_id
     * group_id
     * topic
