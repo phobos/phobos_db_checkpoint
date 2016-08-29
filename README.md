@@ -90,7 +90,7 @@ This command has no side effects, if the migration is already present it will ig
 
 ### <a name="handler"></a> Handler
 
-In order to use the database checkpointing, your handler should be changed to include `PhobosDBCheckpoint::Handler` instead of `Phobos::Handler`. Phobos DB Checkpoint handler makes use the Phobos `around_consume` functionality, which means you need to implement a `#consume` method to handle the event.
+In order to use the database checkpointing, your handler should be changed to include `PhobosDBCheckpoint::Handler` instead of `Phobos::Handler`. Phobos DB Checkpoint handler uses the Phobos `around_consume` functionality, which means you need to implement a `#consume` method to handle the event.
 
 Since Phobos DB Checkpoint will only save acknowledged events, you need to return from `#consume` with an invocation to `#ack` with the __entity_id__ and __event_time__ of your event. Example:
 
@@ -126,14 +126,14 @@ Overview of the built in notifications:
   * `db_checkpoint.event_already_consumed` is sent when the handler receives an existing message (not saved)
 
 The following payload is included for all notifications:
-    * listener_id
-    * group_id
-    * topic
-    * key
-    * partition
-    * offset
-    * retry_count
-    * checksum
+  * listener_id
+  * group_id
+  * topic
+  * key
+  * partition
+  * offset
+  * retry_count
+  * checksum
 
 ## <a name="development"></a> Development
 
