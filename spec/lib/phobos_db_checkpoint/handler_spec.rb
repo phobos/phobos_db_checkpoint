@@ -78,12 +78,12 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
         }
       end
 
-      it 'publish "db_checkpoint.event_alreay_consumed" with the checksum' do
+      it 'publish "db_checkpoint.event_already_consumed" with the checksum' do
         run_handler
 
         expect(TestPhobosDbCheckpointHander)
           .to receive(:instrument)
-          .with('db_checkpoint.event_alreay_consumed', hash_including(:checksum))
+          .with('db_checkpoint.event_already_consumed', hash_including(:checksum))
 
         run_handler
       end

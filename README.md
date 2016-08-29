@@ -128,7 +128,7 @@ Some operations are instrumented using [Phobos::Instrumentation](https://github.
     * offset
     * retry_count
     * checksum
-  * `db_checkpoint.event_alreay_consumed` is sent when the handler receives an existing message. It includes the following payload:
+  * `db_checkpoint.event_already_consumed` is sent when the handler receives an existing message. It includes the following payload:
     * listener_id
     * group_id
     * topic
