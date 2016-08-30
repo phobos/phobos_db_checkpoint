@@ -23,8 +23,8 @@ Gem::Specification.new do |spec|
     'francisco.juan@gmail.com'
   ]
 
-  spec.summary       = %q{PhobosDBCheckpoint is an addition to Phobos which automatically saves your kafka events to the database}
-  spec.description   = %q{PhobosDBCheckpoint is an addition to Phobos which automatically saves your kafka events to the database. It ensures that your handler will consume messages only once, it allows your system to reprocess events and go back in time if needed.}
+  spec.summary       = %q{Phobos DB Checkpoint is a plugin to Phobos and is meant as a drop in replacement to Phobos::Handler}
+  spec.description   = %q{Phobos DB Checkpoint is a plugin to Phobos and is meant as a drop in replacement to Phobos::Handler}
   spec.homepage      = "https://github.com/klarna/phobos_db_checkpoint"
   spec.license       = 'Apache License Version 2.0'
 
