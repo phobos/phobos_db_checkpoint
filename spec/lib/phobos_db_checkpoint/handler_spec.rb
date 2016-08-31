@@ -13,6 +13,14 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
   let(:event_type) { 'event-type' }
   let(:event_version) { 'v1' }
 
+  it 'exposes Phobos::Handler.start' do
+    expect(TestPhobosDbCheckpointHander).to respond_to :start
+  end
+
+  it 'exposes Phobos::Handler.stop' do
+    expect(TestPhobosDbCheckpointHander).to respond_to :stop
+  end
+
   describe '#consume' do
     let(:topic) { 'test' }
     let(:group_id) { 'group1' }
