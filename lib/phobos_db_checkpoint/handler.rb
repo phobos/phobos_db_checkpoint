@@ -12,6 +12,7 @@ module PhobosDBCheckpoint
 
     module ClassMethods
       include Phobos::Instrumentation
+      include Phobos::Handler::ClassMethods
 
       def around_consume(payload, metadata)
         event = PhobosDBCheckpoint::Event.new(
