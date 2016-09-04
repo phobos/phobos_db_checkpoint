@@ -34,8 +34,7 @@ module PhobosDBCheckpoint
     end
 
     def close_db_connection
-      connection = ActiveRecord::Base.connection
-      connection.disconnect! if connection
+      ActiveRecord::Base.connection_pool.disconnect!
     rescue ActiveRecord::ConnectionNotEstablished
     end
 
