@@ -62,4 +62,33 @@ RSpec.describe PhobosDBCheckpoint::CLI do
     end
   end
 
+  describe '$ phobos_db_checkpoint migration NAME' do
+    let(:invoke_cmd) do
+      cmd = PhobosDBCheckpoint::CLI::Commands.new
+      cmd.destination_root = destination_root
+      cmd.invoke(:migration, [migration_name])
+    end
+
+    let(:migration_name) { 'add-new-column' }
+
+    it 'creates a new migration with the given name' do
+      invoke_cmd
+      generated_migration = Dir
+        .entries(File.join(destination_root, 'db/migrate'))
+        .select {|f| f =~ /\.rb$/}
+        .find {|f| f =~ /\d+_add_new_column.rb\Z/}
+
+      expect(generated_migration).to_not be_nil
+    end
+
+    it 'creates a valid constant name with the given name' do
+      invoke_cmd
+      migration_name = Dir
+        .entries(File.join(destination_root, 'db/migrate'))
+        .find {|f| f =~ /\d+_add_new_column.rb\Z/}
+
+      migration_path = File.join(destination_root, 'db/migrate', migration_name)
+      expect(File.read(migration_path)).to match('class AddNewColumn < ActiveRecord::Migration')
+    end
+  end
 end
