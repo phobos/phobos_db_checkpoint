@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+- [feature] New CLI command to generate migrations #6
+
 ## 0.1.1 (2016-09-02)
 - [bugfix] Handler is not injecting start and stop methods #4
 
