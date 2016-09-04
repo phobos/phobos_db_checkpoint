@@ -21,6 +21,21 @@ RSpec.describe PhobosDBCheckpoint do
       expect(PhobosDBCheckpoint.db_config).to_not be_nil
       expect(PhobosDBCheckpoint.db_config).to include('database' => 'phobos-db-checkpoint-test')
     end
+
+    it 'configure pool size based on max_concurrency' do
+      allow(Phobos)
+        .to receive(:config)
+        .and_return(Phobos::DeepStruct.new(
+          listeners: [
+            { max_concurrency: 2 },
+            { }, # default 1
+            { max_concurrency: 12 }
+          ]
+        ))
+
+      PhobosDBCheckpoint.load_db_config
+      expect(PhobosDBCheckpoint.db_config['pool']).to eql 15
+    end
   end
 
   describe '.env' do
