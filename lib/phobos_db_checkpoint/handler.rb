@@ -36,6 +36,10 @@ module PhobosDBCheckpoint
         else
           instrument('db_checkpoint.event_skipped', event_metadata)
         end
+      ensure
+        # Returns any connections in use by the current thread back to the pool, and also returns
+        # connections to the pool cached by threads that are no longer alive.
+        ActiveRecord::Base.clear_active_connections!
       end
     end
   end
