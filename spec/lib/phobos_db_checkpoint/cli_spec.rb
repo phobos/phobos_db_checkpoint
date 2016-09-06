@@ -69,7 +69,7 @@ RSpec.describe PhobosDBCheckpoint::CLI do
       cmd.invoke(:migration, [migration_name])
     end
 
-    let(:migration_name) { 'add-new-column' }
+    let(:migration_name) { 'add_new_column-' }
 
     it 'creates a new migration with the given name' do
       invoke_cmd

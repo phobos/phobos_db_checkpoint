@@ -53,14 +53,15 @@ module PhobosDBCheckpoint
         end
       end
 
-      desc 'migration NAME', 'Generates a new migration with the given name. Use dashes (-) as a separator, ex: add-new-column'
+      desc 'migration NAME', 'Generates a new migration with the given name. Use underlines (_) as a separator, ex: add_new_column'
       option :destination,
              aliases: ['-d'],
              default: 'db/migrate',
              banner: 'Destination folder relative to your project'
       def migration(name)
-        @new_migration_class_name = name.split('-').map(&:capitalize).join('')
-        file_name = "#{migration_number}_#{name.split('-').join('_')}.rb"
+        migration_name = name.gsub(/[^\w]*/, '')
+        @new_migration_class_name = migration_name.split('_').map(&:capitalize).join('')
+        file_name = "#{migration_number}_#{migration_name}.rb"
         destination_fullpath = File.join(destination_root, options[:destination], file_name)
         template(new_migration_template, destination_fullpath)
       end
