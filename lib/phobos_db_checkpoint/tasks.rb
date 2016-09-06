@@ -11,7 +11,7 @@ module PhobosDBCheckpoint
 
       task :load_config do
         PhobosDBCheckpoint.load_db_config
-        task_db_config = Hash[PhobosDBCheckpoint.env, PhobosDBCheckpoint.db_config]
+        task_db_config = Hash[PhobosDBCheckpoint.env, PhobosDBCheckpoint.db_config.merge('pool' => 1)]
         ActiveRecord::Tasks::DatabaseTasks.database_configuration = task_db_config
       end
     end

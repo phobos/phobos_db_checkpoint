@@ -53,23 +53,40 @@ module PhobosDBCheckpoint
         end
       end
 
+      desc 'migration NAME', 'Generates a new migration with the given name. Use underlines (_) as a separator, ex: add_new_column'
+      option :destination,
+             aliases: ['-d'],
+             default: 'db/migrate',
+             banner: 'Destination folder relative to your project'
+      def migration(name)
+        migration_name = name.gsub(/[^\w]*/, '')
+        @new_migration_class_name = migration_name.split('_').map(&:capitalize).join('')
+        file_name = "#{migration_number}_#{migration_name}.rb"
+        destination_fullpath = File.join(destination_root, options[:destination], file_name)
+        template(new_migration_template, destination_fullpath)
+      end
+
       def self.source_root
         File.expand_path(File.join(File.dirname(__FILE__), '../..'))
       end
 
       private
+
       def migration_exists?(list, name)
         list.find { |filename| filename =~ /#{name}/ }
+      end
+
+      def migration_number(index = 0)
+        [Time.now.utc.strftime('%Y%m%d%H%M%S%6N'), '%.21d' % index].max
       end
 
       def template_migrations_metadata
         @template_migrations_metadata ||= begin
           index = 0
           template_migrations.map do |path|
-            number = [Time.now.utc.strftime('%Y%m%d%H%M%S%6N'), '%.21d' % index].max
             name = path.split('/').last
             index += 1
-            {path: path, name: path.gsub(/\.erb$/, ''), number: number}
+            {path: path, name: path.gsub(/\.erb$/, ''), number: migration_number(index)}
           end
         end
       end
@@ -89,6 +106,10 @@ module PhobosDBCheckpoint
 
       def phobos_boot_template
         File.join(self.class.source_root, 'templates/phobos_boot.rb')
+      end
+
+      def new_migration_template
+        File.join(self.class.source_root, 'templates/new_migration.rb.erb')
       end
     end
   end

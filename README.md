@@ -89,6 +89,13 @@ $ phobos_db_checkpoint copy-migrations
 
 This command has no side effects, if the migration is already present it will ignore it.
 
+You can generate new migrations using the command __migration__, example:
+
+```sh
+phobos_db_checkpoint migration add-new-column
+      create  db/migrate/20160904200449879052_add_new_column.rb
+```
+
 ### <a name="handler"></a> Handler
 
 In order to use the database checkpointing, your handler should be changed to include `PhobosDBCheckpoint::Handler` instead of `Phobos::Handler`. Phobos DB Checkpoint handler uses the Phobos `around_consume` functionality, which means you need to implement a `#consume` method to handle the event.

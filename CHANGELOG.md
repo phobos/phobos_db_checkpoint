@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+- [feature] New CLI command to generate migrations #6
 - [feature] Automatically sets database pool size based on listeners max_concurrency #2
 
 ## 0.1.1 (2016-09-02)

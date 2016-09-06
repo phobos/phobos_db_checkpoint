@@ -29,7 +29,7 @@ RSpec.describe PhobosDBCheckpoint::Tasks do
     it 'configures ActiveRecord::Tasks::DatabaseTasks.database_configuration' do
       Rake.application['db:load_config'].invoke
       expect(ActiveRecord::Tasks::DatabaseTasks.database_configuration)
-        .to eql('test' => PhobosDBCheckpoint.db_config)
+        .to eql('test' => PhobosDBCheckpoint.db_config.merge('pool' => 1))
     end
   end
 
