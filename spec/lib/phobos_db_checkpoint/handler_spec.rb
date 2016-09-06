@@ -116,6 +116,12 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
         run_handler
       end
     end
+
+    it 'returns db connections back to the connection pool' do
+      expect(ActiveRecord::Base).to receive(:clear_active_connections!)
+      expect(handler).to receive(:consume).and_return(ack)
+      run_handler
+    end
   end
 
   describe '#ack' do

@@ -31,11 +31,15 @@ module PhobosDBCheckpoint
       @db_config_path ||= DEFAULT_DB_CONFIG_PATH
       configs = YAML.load_file(File.expand_path(@db_config_path))
       @db_config = configs[env]
+
+      if Phobos.config
+        pool_size = Phobos.config.listeners.map { |listener| listener.max_concurrency || 1 }.inject(&:+)
+        @db_config.merge!('pool' => pool_size)
+      end
     end
 
     def close_db_connection
-      connection = ActiveRecord::Base.connection
-      connection.disconnect! if connection
+      ActiveRecord::Base.connection_pool.disconnect!
     rescue ActiveRecord::ConnectionNotEstablished
     end
 

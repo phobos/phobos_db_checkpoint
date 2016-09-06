@@ -21,6 +21,21 @@ RSpec.describe PhobosDBCheckpoint do
       expect(PhobosDBCheckpoint.db_config).to_not be_nil
       expect(PhobosDBCheckpoint.db_config).to include('database' => 'phobos-db-checkpoint-test')
     end
+
+    it 'configure pool size based on max_concurrency' do
+      allow(Phobos)
+        .to receive(:config)
+        .and_return(Phobos::DeepStruct.new(
+          listeners: [
+            { max_concurrency: 2 },
+            { }, # default 1
+            { max_concurrency: 12 }
+          ]
+        ))
+
+      PhobosDBCheckpoint.load_db_config
+      expect(PhobosDBCheckpoint.db_config['pool']).to eql 15
+    end
   end
 
   describe '.env' do
@@ -44,24 +59,19 @@ RSpec.describe PhobosDBCheckpoint do
   end
 
   describe '.close_db_connection!' do
-    describe 'when db is connected and active' do
-      it 'calls disconnect!' do
-        connection = double('DBConnection', disconnect!: true, disable_referential_integrity: true)
-        expect(ActiveRecord::Base).to receive(:connection).and_return(connection)
-        expect { PhobosDBCheckpoint.close_db_connection }.to_not raise_error
-      end
-    end
+    let(:connection_pool) { double('ConnectionPool', disconnect!: true) }
+    before { expect(ActiveRecord::Base).to receive(:connection_pool).and_return(connection_pool) }
 
-    describe 'when db is connected and not active' do
-      it "doesn't raise any errors" do
-        expect(ActiveRecord::Base).to receive(:connection).and_return(nil)
+    describe 'when db is connected' do
+      it 'calls disconnect!' do
+        expect(connection_pool).to receive(:disconnect!)
         expect { PhobosDBCheckpoint.close_db_connection }.to_not raise_error
       end
     end
 
     describe 'when the pool automatically closes the connection' do
       it "doesn't raise any errors" do
-        expect(ActiveRecord::Base).to receive(:connection).and_raise(ActiveRecord::ConnectionNotEstablished)
+        expect(connection_pool).to receive(:disconnect!).and_raise(ActiveRecord::ConnectionNotEstablished)
         expect { PhobosDBCheckpoint.close_db_connection }.to_not raise_error
       end
     end
