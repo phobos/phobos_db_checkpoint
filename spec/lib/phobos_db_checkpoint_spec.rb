@@ -13,6 +13,19 @@ RSpec.describe PhobosDBCheckpoint do
 
       PhobosDBCheckpoint.configure
     end
+
+    it 'uses provided pool_size if any' do
+      expect(PhobosDBCheckpoint)
+        .to receive(:load_db_config)
+        .with(pool_size: 3)
+        .and_call_original
+
+      expect(ActiveRecord::Base)
+        .to receive(:establish_connection)
+        .with(hash_including('pool' => 3))
+
+      PhobosDBCheckpoint.configure(pool_size: 3)
+    end
   end
 
   describe '.load_db_config' do
@@ -35,6 +48,15 @@ RSpec.describe PhobosDBCheckpoint do
 
       PhobosDBCheckpoint.load_db_config
       expect(PhobosDBCheckpoint.db_config['pool']).to eql 15
+    end
+
+    it 'uses provided pool_size value if any' do
+      allow(Phobos)
+        .to receive(:config)
+        .and_return(Phobos::DeepStruct.new)
+
+      PhobosDBCheckpoint.load_db_config(pool_size: 3)
+      expect(PhobosDBCheckpoint.db_config['pool']).to eql 3
     end
   end
 
