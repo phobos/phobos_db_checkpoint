@@ -51,6 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pg'
   spec.add_development_dependency 'database_cleaner'
   spec.add_development_dependency 'rspec_junit_formatter', '0.2.2'
+  spec.add_development_dependency 'rack-test'
 
   spec.add_dependency 'thor'
   spec.add_dependency 'rake'

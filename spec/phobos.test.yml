@@ -1,6 +1,6 @@
 logger:
   file: spec/log/phobos.log
-  level: debug
+  level: info
 
 kafka:
   # identifier for this application

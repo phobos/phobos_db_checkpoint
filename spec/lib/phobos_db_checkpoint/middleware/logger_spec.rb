@@ -16,6 +16,7 @@ describe PhobosDBCheckpoint::Middleware::Logger do
   subject { PhobosDBCheckpoint::Middleware::Logger.new(app, options) }
 
   before do
+    Phobos.silence_log = false
     FileUtils.rm_rf('spec/log')
     allow(app).to receive(:call).and_return(app_response)
   end
