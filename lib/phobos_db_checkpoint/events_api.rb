@@ -21,7 +21,7 @@ module PhobosDBCheckpoint
       { error: true, message: 'event not found' }.to_json
     end
 
-    error do
+    error StandardError do
       content_type :json
       error = env['sinatra.error']
       { error: true, message: error.message }.to_json

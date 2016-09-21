@@ -169,4 +169,24 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       end
     end
   end
+
+  context 'with not found' do
+    it 'returns 404' do
+      get '/v1/not-found'
+      expect(last_response.status).to eql 404
+      expect(last_response.body).to eql Hash(error: true, message: 'not found').to_json
+    end
+  end
+
+  context 'with errors' do
+    it 'returns 500' do
+      expect(PhobosDBCheckpoint::Event)
+        .to receive(:find)
+        .and_raise(StandardError, 'generic error')
+
+      get 'v1/events/1'
+      expect(last_response.status).to eql 500
+      expect(last_response.body).to eql Hash(error: true, message: 'generic error').to_json
+    end
+  end
 end
