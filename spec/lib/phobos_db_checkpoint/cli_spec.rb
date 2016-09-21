@@ -91,4 +91,19 @@ RSpec.describe PhobosDBCheckpoint::CLI do
       expect(File.read(migration_path)).to match('class AddNewColumn < ActiveRecord::Migration')
     end
   end
+
+  describe '$ phobos_db_checkpoint init-events-api' do
+    let(:invoke_cmd) do
+      cmd = PhobosDBCheckpoint::CLI::Commands.new
+      cmd.destination_root = destination_root
+      cmd.invoke(:init_events_api)
+    end
+
+    it 'copy config.ru to root' do
+      invoke_cmd
+      expect(File.exists?('spec/tmp/config.ru')).to eql true
+      expect(File.read(File.join(destination_root, 'config.ru')))
+        .to eql File.read(File.join(root, 'templates/config.ru'))
+    end
+  end
 end
