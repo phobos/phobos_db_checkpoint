@@ -80,7 +80,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       end
     end
 
-    context 'when handler is configured anymore' do
+    context 'when handler is not configured anymore' do
       it 'returns 422' do
         event.group_id = 'another-group'
         event.save
