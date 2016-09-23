@@ -15,6 +15,7 @@ Phobos DB Checkpoint is a plugin to [Phobos](https://github.com/klarna/phobos) a
   1. [Setup](#setup)
   1. [Handler](#handler)
   1. [Accessing the events](#accessing-the-events)
+  1. [Events API](#events-api)
   1. [Instrumentation](#instrumentation)
 1. [Development](#development)
 
@@ -121,6 +122,46 @@ Note that the `PhobosDBCheckpoint::Handler` will automatically skip already hand
 ### <a name="accessing-the-events">Accessing the events</a>
 
 `PhobosDBCheckpoint::Event` is a plain `ActiveRecord::Base` model, feel free to play with it.
+
+### <a name="events-api"></a> Events API
+
+Phobos DB Checkpoint comes with a sinatra app which makes the event manipulation easy through its JSON API.
+
+The __init_events_api__ command will generate a `config.ru` ready to use:
+
+```sh
+$ phobos_db_checkpoint init_events_api
+   create  config.ru
+   Start the API with: `rackup config.ru`
+```
+
+```sh
+$ curl "http://localhost:9292/v1/events/1"
+# {
+#   "id": 1,
+#   "topic": "test-partitions",
+#   "group_id": "test-checkpoint-1",
+#   "entity_id": "1",
+#   "event_time": "2016-09-19T19:35:26.854Z",
+#   "event_type": "create",
+#   "event_version": "v1",
+#   "checksum": "188773471ec0f898fd81d272760a027f",
+#   "payload": "{\"a\":\"b\"}"
+# }
+```
+
+The available routes are:
+
+* GET `/ping`
+* GET `/v1/events/:id`
+* GET `/v1/events` This route accepts the following params:
+  * `limit`, default: 20
+  * `offset`, default: 0
+  * `entity_id`
+  * `topic`
+  * `group_id`
+  * `event_type`
+* POST `/v1/events/:id/retry`
 
 ### <a name="instrumentation"></a> Instrumentation
 

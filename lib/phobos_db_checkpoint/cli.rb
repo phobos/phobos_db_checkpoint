@@ -66,6 +66,12 @@ module PhobosDBCheckpoint
         template(new_migration_template, destination_fullpath)
       end
 
+      desc 'init-events-api', 'Initialize your project with events API'
+      def init_events_api
+        copy_file 'templates/config.ru', 'config.ru'
+        say '   Start the API with: `rackup config.ru`'
+      end
+
       def self.source_root
         File.expand_path(File.join(File.dirname(__FILE__), '../..'))
       end

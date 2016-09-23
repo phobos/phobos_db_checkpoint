@@ -13,3 +13,5 @@ spec/examples.txt
 spec/setup/
 spec/tmp/
 .byebug_history
+log/
+spec/log/

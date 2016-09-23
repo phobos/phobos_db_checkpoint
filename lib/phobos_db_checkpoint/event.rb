@@ -14,6 +14,14 @@ module PhobosDBCheckpoint
       save!
     end
 
+    def configured_handler
+      Phobos
+        .config
+        .listeners
+        .find { |listener| listener.group_id == self.group_id }
+        &.handler
+    end
+
     private
 
     def assign_checksum

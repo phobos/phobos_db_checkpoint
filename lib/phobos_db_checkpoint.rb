@@ -12,13 +12,14 @@ module PhobosDBCheckpoint
   DEFAULT_DB_DIR = 'db'.freeze
   DEFAULT_MIGRATION_PATH = File.join(DEFAULT_DB_DIR, 'migrate').freeze
   DEFAULT_DB_CONFIG_PATH = 'config/database.yml'.freeze
+  DEFAULT_POOL_SIZE = 5.freeze
 
   class << self
     attr_reader :db_config
     attr_accessor :db_config_path, :db_dir, :migration_path
 
-    def configure
-      load_db_config
+    def configure(pool_size: nil)
+      load_db_config(pool_size: pool_size)
       at_exit { PhobosDBCheckpoint.close_db_connection }
       ActiveRecord::Base.establish_connection(db_config)
     end
@@ -27,15 +28,16 @@ module PhobosDBCheckpoint
       ENV['RAILS_ENV'] ||= ENV['RACK_ENV'] ||= 'development'
     end
 
-    def load_db_config
+    def load_db_config(pool_size: nil)
       @db_config_path ||= DEFAULT_DB_CONFIG_PATH
       configs = YAML.load_file(File.expand_path(@db_config_path))
       @db_config = configs[env]
 
-      if Phobos.config
+      if pool_size.nil? && Phobos.config
         pool_size = Phobos.config.listeners.map { |listener| listener.max_concurrency || 1 }.inject(&:+)
-        @db_config.merge!('pool' => pool_size)
       end
+
+      @db_config.merge!('pool' => pool_size || DEFAULT_POOL_SIZE)
     end
 
     def close_db_connection
