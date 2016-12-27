@@ -29,7 +29,7 @@ module PhobosDBCheckpoint
     end
 
     def load_db_config(pool_size: nil)
-      @db_config_path ||= DEFAULT_DB_CONFIG_PATH
+      @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
       configs = YAML.load_file(File.expand_path(@db_config_path))
       @db_config = configs[env]
 
