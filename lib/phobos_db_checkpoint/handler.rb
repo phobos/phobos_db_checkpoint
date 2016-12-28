@@ -21,13 +21,21 @@ module PhobosDBCheckpoint
           payload: payload
         )
 
-        event_metadata = {checksum: event.checksum}.merge(metadata)
-        if event.exists?
+        event_metadata = { checksum: event.checksum }.merge(metadata)
+
+        event_exists = instrument('db_checkpoint.event_already_exists_check', event_metadata) do
+          event.exists?
+        end
+
+        if event_exists
           instrument('db_checkpoint.event_already_consumed', event_metadata)
           return
         end
 
-        event_action = yield
+        event_action = instrument('db_checkpoint.event_action', event_metadata) do
+          yield
+        end
+
         case event_action
         when PhobosDBCheckpoint::Ack
           instrument('db_checkpoint.event_acknowledged', event_metadata) do
