@@ -170,6 +170,8 @@ Some operations are instrumented using [Phobos::Instrumentation](https://github.
 #### Handler notifications
 
 Overview of the built in notifications:
+  * `db_checkpoint.event_already_exists_check` is sent when the event has been queried for existence in the database
+  * `db_checkpoint.event_action` is sent when the event action has completed
   * `db_checkpoint.event_acknowledged` is sent when the event is acknowledged (saved)
   * `db_checkpoint.event_skipped` is sent when the event is skipped (not saved)
   * `db_checkpoint.event_already_consumed` is sent when the handler receives an existing message (not saved)

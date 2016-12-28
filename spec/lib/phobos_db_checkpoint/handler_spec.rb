@@ -62,10 +62,21 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
         expect(event.group_id).to eql group_id
       end
 
-      it 'publish "db_checkpoint.event_acknowledged" with the checksum' do
+      it 'publishes the expected instrumentations, with outcome event_acknowledged' do
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
+          .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
+          .and_call_original
+
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
+          .with('db_checkpoint.event_action', hash_including(:checksum))
+          .and_call_original
+
         expect(TestPhobosDbCheckpointHander)
           .to receive(:instrument)
           .with('db_checkpoint.event_acknowledged', hash_including(:checksum))
+          .and_call_original
 
         run_handler
       end
@@ -86,12 +97,18 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
         }
       end
 
-      it 'publish "db_checkpoint.event_already_consumed" with the checksum' do
+      it 'publishes the expected instrumentations, with outcome event_already_consumed' do
         run_handler
 
         expect(TestPhobosDbCheckpointHander)
           .to receive(:instrument)
+          .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
+          .and_call_original
+
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
           .with('db_checkpoint.event_already_consumed', hash_including(:checksum))
+          .and_call_original
 
         run_handler
       end
@@ -108,10 +125,21 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
         expect(PhobosDBCheckpoint::Event.count).to eql 0
       end
 
-      it 'publish "db_checkpoint.event_skipped"' do
+      it 'publishes the expected instrumentations, with outcome event_skipped' do
         expect(TestPhobosDbCheckpointHander)
           .to receive(:instrument)
-          .with('db_checkpoint.event_skipped', anything)
+          .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
+          .and_call_original
+
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
+          .with('db_checkpoint.event_action', hash_including(:checksum))
+          .and_call_original
+
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
+          .with('db_checkpoint.event_skipped', hash_including(:checksum))
+          .and_call_original
 
         run_handler
       end
