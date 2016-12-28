@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+- [feature] Add another instrumentation to wrap the entire around consume
+
 ## 0.4.0 (2016-12-28)
 
 - [feature] Add more instrumentation for consuming
