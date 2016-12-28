@@ -170,6 +170,7 @@ Some operations are instrumented using [Phobos::Instrumentation](https://github.
 #### Handler notifications
 
 Overview of the built in notifications:
+  * `db_checkpoint.around_consume` is sent when the event has run all logic in `around_consume`, this encompasses many of the below instrumentations at a higher level
   * `db_checkpoint.event_already_exists_check` is sent when the event has been queried for existence in the database
   * `db_checkpoint.event_action` is sent when the event action has completed
   * `db_checkpoint.event_acknowledged` is sent when the event is acknowledged (saved)
