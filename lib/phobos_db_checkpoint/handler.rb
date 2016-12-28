@@ -23,23 +23,25 @@ module PhobosDBCheckpoint
 
         event_metadata = { checksum: event.checksum }.merge(metadata)
 
-        event_exists = instrument('db_checkpoint.event_already_exists_check', event_metadata) { event.exists? }
-        if event_exists
-          instrument('db_checkpoint.event_already_consumed', event_metadata)
-          return
-        end
-
-        event_action = instrument('db_checkpoint.event_action', event_metadata) do
-          yield
-        end
-
-        case event_action
-        when PhobosDBCheckpoint::Ack
-          instrument('db_checkpoint.event_acknowledged', event_metadata) do
-            event.acknowledge!(event_action)
+        instrument('db_checkpoint.around_consume', event_metadata) do
+          event_exists = instrument('db_checkpoint.event_already_exists_check', event_metadata) { event.exists? }
+          if event_exists
+            instrument('db_checkpoint.event_already_consumed', event_metadata)
+            return
           end
-        else
-          instrument('db_checkpoint.event_skipped', event_metadata)
+
+          event_action = instrument('db_checkpoint.event_action', event_metadata) do
+            yield
+          end
+
+          case event_action
+          when PhobosDBCheckpoint::Ack
+            instrument('db_checkpoint.event_acknowledged', event_metadata) do
+              event.acknowledge!(event_action)
+            end
+          else
+            instrument('db_checkpoint.event_skipped', event_metadata)
+          end
         end
       ensure
         # Returns any connections in use by the current thread back to the pool, and also returns

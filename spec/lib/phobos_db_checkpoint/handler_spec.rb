@@ -65,6 +65,11 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       it 'publishes the expected instrumentations, with outcome event_acknowledged' do
         expect(TestPhobosDbCheckpointHander)
           .to receive(:instrument)
+          .with('db_checkpoint.around_consume', hash_including(:checksum))
+          .and_call_original
+
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
           .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
           .and_call_original
 
@@ -102,6 +107,11 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
 
         expect(TestPhobosDbCheckpointHander)
           .to receive(:instrument)
+          .with('db_checkpoint.around_consume', hash_including(:checksum))
+          .and_call_original
+
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
           .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
           .and_call_original
 
@@ -126,6 +136,11 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       end
 
       it 'publishes the expected instrumentations, with outcome event_skipped' do
+        expect(TestPhobosDbCheckpointHander)
+          .to receive(:instrument)
+          .with('db_checkpoint.around_consume', hash_including(:checksum))
+          .and_call_original
+
         expect(TestPhobosDbCheckpointHander)
           .to receive(:instrument)
           .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
