@@ -23,10 +23,7 @@ module PhobosDBCheckpoint
 
         event_metadata = { checksum: event.checksum }.merge(metadata)
 
-        event_exists = instrument('db_checkpoint.event_already_exists_check', event_metadata) do
-          event.exists?
-        end
-
+        event_exists = instrument('db_checkpoint.event_already_exists_check', event_metadata) { event.exists? }
         if event_exists
           instrument('db_checkpoint.event_already_consumed', event_metadata)
           return
