@@ -48,10 +48,10 @@ module PhobosDBCheckpoint
             begin
               yield
             rescue => e
-              if retry_consume?
+              if retry_consume?(event, event_metadata, e)
                 raise e
               else
-                Failure.create(event_payload: payload, event_metadata: event_metadata, exception: e)
+                Failure.record(event_payload: payload, event_metadata: event_metadata, exception: e)
               end
             end
           end

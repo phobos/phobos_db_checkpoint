@@ -187,4 +187,53 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
     end
   end
+
+  describe '.around_consume' do
+    let(:event_payload) { Hash(payload: 'payload') }
+    let(:event_metadata) { Hash(metadata: 'metadata', retry_count: 0) }
+    subject { TestPhobosDbCheckpointHandler }
+
+    it 'should yield control' do
+      expect do |block|
+        subject.around_consume(event_payload, event_metadata, &block)
+      end.to yield_control.once
+    end
+
+    context 'when failure occurs' do
+      let(:block) { Proc.new { |n| raise StandardError, 'foo' } }
+
+      context 'and retry consume conditions are met' do
+        it 'reraises the error' do
+          expect {
+            subject.around_consume(event_payload, event_metadata, &block)
+          }.to raise_error StandardError, 'foo'
+        end
+
+        it 'does not create a Failure record' do
+          expect {
+            expect {
+              subject.around_consume(event_payload, event_metadata, &block)
+            }.to raise_error StandardError, 'foo'
+          }.to_not change(PhobosDBCheckpoint::Failure, :count)
+        end
+      end
+
+      context 'but retry consume conditions are not met' do
+        let(:event_metadata) { Hash(metadata: 'metadata', retry_count: PhobosDBCheckpoint::Handler::DEFAULT_MAX_RETRIES) }
+
+        it 'suppresses the error' do
+          expect {
+            subject.around_consume(event_payload, event_metadata, &block)
+          }.to_not raise_error
+        end
+
+        it 'creates a Failure record' do
+          expect {
+            subject.around_consume(event_payload, event_metadata, &block)
+          }.to change(PhobosDBCheckpoint::Failure, :count).by(1)
+        end
+      end
+    end
+
+  end
 end
