@@ -16,6 +16,14 @@ module PhobosDBCheckpoint
       where("metadata->>'checksum' = ?", checksum).exists?
     end
 
+    def payload
+      attributes['payload'].deep_symbolize_keys
+    end
+
+    def metadata
+      attributes['metadata'].deep_symbolize_keys
+    end
+
     # Can we delete the failure already at this stage?
     # Since a new error will be created after failing again X times in a row?
     # This would make retrying errors a simple task, one click and forget about it.
@@ -24,7 +32,7 @@ module PhobosDBCheckpoint
         .new
         .consume(
           payload,
-          metadata.deep_symbolize_keys.merge(retry_count: 0)
+          metadata.merge(retry_count: 0)
         )
     end
 
@@ -32,10 +40,11 @@ module PhobosDBCheckpoint
       Phobos
         .config
         .listeners
-        .find { |l| l.group_id == metadata['group_id'] }
+        .find { |l| l.group_id == metadata[:group_id] }
         .handler
+        .constantize
     rescue NoMethodError => e
-      raise(HandlerNotFoundError, metadata['group_id']) if e.message =~ /handler/
+      raise(HandlerNotFoundError, metadata[:group_id]) if e.message =~ /handler/
       raise e
     end
   end

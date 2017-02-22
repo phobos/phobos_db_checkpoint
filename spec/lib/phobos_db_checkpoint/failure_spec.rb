@@ -4,8 +4,8 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   let(:event_payload) { Hash(payload: 'payload') }
   let(:checksum) { 'checksum' }
   let(:event_metadata) { Hash(metadata: 'metadata', checksum: checksum) }
-  let(:record_payload) { Hash(event_payload: event_payload, event_metadata: event_metadata) }
-  subject { described_class.record(record_payload) }
+  let(:attributes_for_create) { Hash(event_payload: event_payload, event_metadata: event_metadata) }
+  subject { described_class.record(attributes_for_create) }
 
   describe '.record' do
     it 'creates a failure' do
@@ -15,11 +15,11 @@ describe PhobosDBCheckpoint::Failure, type: :db do
     end
 
     it 'stores payload as json' do
-      expect(subject.payload).to eql JSON(event_payload.to_json)
+      expect(subject.attributes['payload']).to eql JSON(event_payload.to_json)
     end
 
     it 'stores metadata as json' do
-      expect(subject.metadata).to eql JSON(event_metadata.to_json)
+      expect(subject.attributes['metadata']).to eql JSON(event_metadata.to_json)
     end
 
     context 'with exception' do
@@ -33,7 +33,7 @@ describe PhobosDBCheckpoint::Failure, type: :db do
         e
       end
 
-      let(:record_payload) {
+      let(:attributes_for_create) {
         Hash(event_payload: event_payload, event_metadata: event_metadata, exception: exception)
       }
 
@@ -56,6 +56,16 @@ describe PhobosDBCheckpoint::Failure, type: :db do
       expect(described_class.exists?(checksum)).to eql false
       subject
       expect(described_class.exists?(checksum)).to eql true
+    end
+  end
+
+  describe 'attributes' do
+    it 'has a getter override for payload returning symbolic keys' do
+      expect(subject.payload).to eql({ payload: 'payload' })
+    end
+
+    it 'has a getter override for metadata returning symbolic keys' do
+      expect(subject.metadata).to eql({ metadata: 'metadata', checksum: 'checksum' })
     end
   end
 
@@ -82,8 +92,26 @@ describe PhobosDBCheckpoint::Failure, type: :db do
       let(:event_metadata) { Hash(group_id: 'test-checkpoint') }
 
       it 'returns the name of the configured handler for this event' do
-        expect(subject.configured_handler).to eql Phobos::EchoHandler.to_s
+        expect(subject.configured_handler).to eql Phobos::EchoHandler
       end
+    end
+  end
+
+  describe '#retry!' do
+    let(:handler) { Phobos::EchoHandler.new }
+    let(:event_metadata) { Hash(group_id: 'test-checkpoint') }
+
+    before do
+      Phobos.silence_log = true
+      Phobos.configure('spec/phobos.test.yml')
+      expect(Phobos::EchoHandler).to receive(:new).and_return(handler)
+    end
+
+    it 'invoke #consume on the configured handler with reset retry_count' do
+      expect(handler)
+        .to receive(:consume)
+        .with(event_payload, event_metadata.merge(retry_count: 0))
+      subject.retry!
     end
   end
 end
