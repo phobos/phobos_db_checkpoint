@@ -72,5 +72,10 @@ module PhobosDBCheckpoint
         .offset(offset)
         .to_json
     end
+
+    get "/#{VERSION}/error_events" do
+      content_type :json
+      PhobosDBCheckpoint::Failure.all.to_json
+    end
   end
 end

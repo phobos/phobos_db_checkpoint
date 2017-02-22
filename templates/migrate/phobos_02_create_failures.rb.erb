@@ -1,0 +1,18 @@
+class Phobos02CreateFailures < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def up
+    create_table :failures do |t|
+      t.json      :payload,        index: false
+      t.json      :metadata,       index: false
+      t.string    :entity_id,      index: true
+      t.timestamp :event_time,     index: false
+      t.string    :checksum,       index: true
+      t.string    :error_class,    index: false
+      t.string    :error_message,  index: false
+      t.text      :error_backtrace
+    end
+  end
+
+  def down
+    drop_table :failures
+  end
+end

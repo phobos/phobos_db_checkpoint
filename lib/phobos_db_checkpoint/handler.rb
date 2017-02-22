@@ -1,6 +1,7 @@
 module PhobosDBCheckpoint
   module Handler
     include Phobos::Handler
+    DEFAULT_MAX_RETRIES = 3
 
     def self.included(base)
       base.extend(ClassMethods)
@@ -10,9 +11,17 @@ module PhobosDBCheckpoint
       PhobosDBCheckpoint::Ack.new(entity_id, event_time, event_type, event_version)
     end
 
+    def nack(entity_id, event_time, event_type = nil, event_version = nil)
+      PhobosDBCheckpoint::Nack.new
+    end
+
     module ClassMethods
       include Phobos::Instrumentation
       include Phobos::Handler::ClassMethods
+
+      def retry?(event, event_metadata, exception)
+        event_metadata[:retry_count] <= DEFAULT_MAX_RETRIES
+      end
 
       def around_consume(payload, metadata)
         event = PhobosDBCheckpoint::Event.new(
@@ -31,13 +40,25 @@ module PhobosDBCheckpoint
           end
 
           event_action = instrument('db_checkpoint.event_action', event_metadata) do
-            yield
+            begin
+              yield
+            rescue => e
+              if retry?
+                raise e
+              else
+                Failure.create(event_payload: payload, event_metadata: event_metadata, exception: e)
+              end
+            end
           end
 
           case event_action
           when PhobosDBCheckpoint::Ack
             instrument('db_checkpoint.event_acknowledged', event_metadata) do
               event.acknowledge!(event_action)
+            end
+          when PhobosDBCheckpoint::Nack
+            instrument('db_checkpoint.event_not_acknowledged', event_metadata) do
+              Failure.create(event_payload: payload, event_metadata: event_metadata, action: event_action)
             end
           else
             instrument('db_checkpoint.event_skipped', event_metadata)
