@@ -16,14 +16,16 @@ module PhobosDBCheckpoint
       include Phobos::Handler::ClassMethods
 
       # Name...
-      # => retry?
+      # => retry_consume?
+      # => back_off?
+      # => consume_again?
       # => fail_consume?
       # => fail_permanently?
       # => give_up?
       # => stop_message?
       # => consume_failure_condition_met?
-      def retry?(event, event_metadata, exception)
-        event_metadata[:retry_count] <= DEFAULT_MAX_RETRIES
+      def retry_consume?(event, event_metadata, exception)
+        event_metadata[:retry_count] < DEFAULT_MAX_RETRIES
       end
 
       def around_consume(payload, metadata)
@@ -46,7 +48,7 @@ module PhobosDBCheckpoint
             begin
               yield
             rescue => e
-              if retry?
+              if retry_consume?
                 raise e
               else
                 Failure.create(event_payload: payload, event_metadata: event_metadata, exception: e)

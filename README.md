@@ -14,6 +14,7 @@ Phobos DB Checkpoint is a plugin to [Phobos](https://github.com/klarna/phobos) a
 1. [Usage](#usage)
   1. [Setup](#setup)
   1. [Handler](#handler)
+    1. [Failures](#failures)
   1. [Accessing the events](#accessing-the-events)
   1. [Events API](#events-api)
   1. [Instrumentation](#instrumentation)
@@ -118,6 +119,25 @@ end
 If your handler returns anything different than an __ack__ it won't be saved to the database.
 
 Note that the `PhobosDBCheckpoint::Handler` will automatically skip already handled events (i.e. duplicate Kafka messages).
+
+#### <a name="failures"></a> Failures
+
+If your handler fails during the process of consuming the event, the event will be processed again later since it is neither acknowledged or skipped. This could go on indefinitely, so in order to help you deal with this PhobosDBCheckpoint will after three consecutive attempts mark them as permanently failed.
+
+This is done by inspecting the retry counter in the Phobos metadata, creating a `Failure` record and then skipping the event. You can easily retry these events later by simply invoking `retry!` on them.
+
+By overriding the `retry_consume?` method you can take control over the conditions that apply for retrying consumption. Whenever these are not met, a failing event will be moved out of the queue and become a Failure.
+The control is based on `event`, `event_metadata` and `exception`:
+
+```ruby
+class MyHandler
+  include PhobosDBCheckpoint::Handler
+
+  def retry_consume?(event, event_metadata, exception)
+    event_metadata[:retry_count] <= MyApp.config.max_retries
+  end
+end
+```
 
 ### <a name="accessing-the-events">Accessing the events</a>
 

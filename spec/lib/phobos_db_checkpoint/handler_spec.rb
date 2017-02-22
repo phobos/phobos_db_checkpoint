@@ -3,22 +3,22 @@ require 'securerandom'
 require 'json'
 
 RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
-  class TestPhobosDbCheckpointHander
+  class TestPhobosDbCheckpointHandler
     include PhobosDBCheckpoint::Handler
   end
 
-  let(:handler) { TestPhobosDbCheckpointHander.new }
+  let(:handler) { TestPhobosDbCheckpointHandler.new }
   let(:entity_id) { SecureRandom.uuid }
   let(:event_time) { Time.now.utc }
   let(:event_type) { 'event-type' }
   let(:event_version) { 'v1' }
 
   it 'exposes Phobos::Handler.start' do
-    expect(TestPhobosDbCheckpointHander).to respond_to :start
+    expect(TestPhobosDbCheckpointHandler).to respond_to :start
   end
 
   it 'exposes Phobos::Handler.stop' do
-    expect(TestPhobosDbCheckpointHander).to respond_to :stop
+    expect(TestPhobosDbCheckpointHandler).to respond_to :stop
   end
 
   describe '#consume' do
@@ -38,7 +38,7 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
     let(:metadata) { Hash(topic: topic, group_id: group_id) }
 
     def run_handler
-      TestPhobosDbCheckpointHander.around_consume(payload, metadata) do
+      TestPhobosDbCheckpointHandler.around_consume(payload, metadata) do
         handler.consume(payload, metadata)
       end
     end
@@ -63,22 +63,22 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       end
 
       it 'publishes the expected instrumentations, with outcome event_acknowledged' do
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.around_consume', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_action', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_acknowledged', hash_including(:checksum))
           .and_call_original
@@ -105,17 +105,17 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       it 'publishes the expected instrumentations, with outcome event_already_consumed' do
         run_handler
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.around_consume', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_already_consumed', hash_including(:checksum))
           .and_call_original
@@ -136,22 +136,22 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       end
 
       it 'publishes the expected instrumentations, with outcome event_skipped' do
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.around_consume', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_already_exists_check', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_action', hash_including(:checksum))
           .and_call_original
 
-        expect(TestPhobosDbCheckpointHander)
+        expect(TestPhobosDbCheckpointHandler)
           .to receive(:instrument)
           .with('db_checkpoint.event_skipped', hash_including(:checksum))
           .and_call_original
@@ -175,6 +175,16 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       expect(ack.event_time).to eql event_time
       expect(ack.event_type).to eql event_type
       expect(ack.event_version).to eql event_version
+    end
+  end
+
+  describe '.retry_consume?' do
+    subject { TestPhobosDbCheckpointHandler }
+    it 'is true if metadata is less than DEFAULT_MAX_RETRIES' do
+      expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_truthy
+      expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_truthy
+      expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_truthy
+      expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
     end
   end
 end
