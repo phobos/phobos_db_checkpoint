@@ -73,9 +73,20 @@ module PhobosDBCheckpoint
         .to_json
     end
 
-    get "/#{VERSION}/error_events" do
+    get "/#{VERSION}/failures" do
       content_type :json
-      PhobosDBCheckpoint::Failure.all.to_json
+
+      limit = (params['limit'] || 20).to_i
+      offset = (params['offset'] || 0).to_i
+
+      query = PhobosDBCheckpoint::Failure
+      query = query.by_topic(params['topic']) if params['topic']
+      query = query.by_group_id(params['group_id']) if params['group_id']
+
+      query
+        .limit(limit)
+        .offset(offset)
+        .to_json
     end
   end
 end
