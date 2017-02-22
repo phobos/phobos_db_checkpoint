@@ -11,14 +11,17 @@ module PhobosDBCheckpoint
       PhobosDBCheckpoint::Ack.new(entity_id, event_time, event_type, event_version)
     end
 
-    def nack(entity_id, event_time, event_type = nil, event_version = nil)
-      PhobosDBCheckpoint::Nack.new
-    end
-
     module ClassMethods
       include Phobos::Instrumentation
       include Phobos::Handler::ClassMethods
 
+      # Name...
+      # => retry?
+      # => fail_consume?
+      # => fail_permanently?
+      # => give_up?
+      # => stop_message?
+      # => consume_failure_condition_met?
       def retry?(event, event_metadata, exception)
         event_metadata[:retry_count] <= DEFAULT_MAX_RETRIES
       end
@@ -55,10 +58,6 @@ module PhobosDBCheckpoint
           when PhobosDBCheckpoint::Ack
             instrument('db_checkpoint.event_acknowledged', event_metadata) do
               event.acknowledge!(event_action)
-            end
-          when PhobosDBCheckpoint::Nack
-            instrument('db_checkpoint.event_not_acknowledged', event_metadata) do
-              Failure.create(event_payload: payload, event_metadata: event_metadata, action: event_action)
             end
           else
             instrument('db_checkpoint.event_skipped', event_metadata)

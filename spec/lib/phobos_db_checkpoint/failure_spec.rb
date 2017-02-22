@@ -49,23 +49,6 @@ describe PhobosDBCheckpoint::Failure, type: :db do
         expect(subject.error_backtrace).to eql JSON(exception.backtrace.to_json)
       end
     end
-
-    context 'with action' do
-      let(:action) {
-        PhobosDBCheckpoint::Nack.new('entity_id', Time.now)
-      }
-      let(:record_payload) {
-        Hash(event_payload: event_payload, event_metadata: event_metadata, action: action)
-      }
-
-      it 'stores action entity_id' do
-        expect(subject.entity_id).to eql action.entity_id
-      end
-
-      it 'stores action event_time' do
-        expect(subject.event_time).to eql action.event_time
-      end
-    end
   end
 
   describe '.exists?' do
@@ -73,6 +56,34 @@ describe PhobosDBCheckpoint::Failure, type: :db do
       expect(described_class.exists?(checksum)).to eql false
       subject
       expect(described_class.exists?(checksum)).to eql true
+    end
+  end
+
+  describe '#configured_handler' do
+    before do
+      Phobos.silence_log = true
+      Phobos.configure('spec/phobos.test.yml')
+    end
+
+    context 'when group id is not found in Phobos configuration' do
+      let(:event_metadata) { Hash(group_id: 'check-testpoint') }
+
+      it 'fails with HandlerNotFoundError' do
+        expect {
+          subject.configured_handler
+        }.to raise_error(
+          PhobosDBCheckpoint::HandlerNotFoundError,
+          "Phobos Handler not found for group id 'check-testpoint'"
+        )
+      end
+    end
+
+    context 'when group id is found in Phobos configuration' do
+      let(:event_metadata) { Hash(group_id: 'test-checkpoint') }
+
+      it 'returns the name of the configured handler for this event' do
+        expect(subject.configured_handler).to eql Phobos::EchoHandler.to_s
+      end
     end
   end
 end

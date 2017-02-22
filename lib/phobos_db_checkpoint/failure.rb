@@ -1,13 +1,11 @@
 module PhobosDBCheckpoint
   class Failure < ActiveRecord::Base
-    def self.record(event_payload:, event_metadata:, exception: nil, action: nil)
+    def self.record(event_payload:, event_metadata:, exception: nil)
       return if exists?(event_metadata[:checksum])
 
       create do |record|
         record.payload         = event_payload
         record.metadata        = event_metadata
-        record.entity_id       = action&.entity_id
-        record.event_time      = action&.event_time
         record.error_class     = exception&.class&.name
         record.error_message   = exception&.message
         record.error_backtrace = exception&.backtrace
@@ -34,8 +32,11 @@ module PhobosDBCheckpoint
       Phobos
         .config
         .listeners
-        .find { |l| l.group_id == metadata['group_id'] && l.topic == metadata['topic'] }
+        .find { |l| l.group_id == metadata['group_id'] }
         .handler
+    rescue NoMethodError => e
+      raise(HandlerNotFoundError, metadata['group_id']) if e.message =~ /handler/
+      raise e
     end
   end
 end

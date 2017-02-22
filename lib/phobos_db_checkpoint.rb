@@ -4,6 +4,7 @@ require 'active_record'
 require 'phobos'
 
 require 'phobos_db_checkpoint/version'
+require 'phobos_db_checkpoint/errors'
 require 'phobos_db_checkpoint/event_actions'
 require 'phobos_db_checkpoint/event'
 require 'phobos_db_checkpoint/failure'
