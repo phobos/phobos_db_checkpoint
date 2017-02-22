@@ -1,6 +1,6 @@
 module PhobosDBCheckpoint
   class Failure < ActiveRecord::Base
-    def self.create_by_event!(event_payload:, event_metadata:, exception: nil, action: nil)
+    def self.record(event_payload:, event_metadata:, exception: nil, action: nil)
       return if exists?(event_metadata[:checksum])
 
       create do |record|
@@ -26,7 +26,7 @@ module PhobosDBCheckpoint
         .new
         .consume(
           payload,
-          metadata.merge('retry_count' => 0)
+          metadata.deep_symbolize_keys.merge(retry_count: 0)
         )
     end
 

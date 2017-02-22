@@ -8,7 +8,7 @@ class Phobos02CreateFailures < ActiveRecord::Migration[<%= ActiveRecord::Migrati
       t.string    :checksum,       index: true
       t.string    :error_class,    index: false
       t.string    :error_message,  index: false
-      t.text      :error_backtrace
+      t.json      :error_backtrace
     end
   end
 
