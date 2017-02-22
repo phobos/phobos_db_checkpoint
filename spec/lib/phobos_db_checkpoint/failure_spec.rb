@@ -8,7 +8,7 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   subject { described_class.record(attributes_for_create) }
 
   describe '.record' do
-    it 'creates a failure' do
+    it 'creates a failure record' do
       expect {
         subject
       }.to change(described_class, :count).by(1)
@@ -47,6 +47,18 @@ describe PhobosDBCheckpoint::Failure, type: :db do
 
       it 'stores exception backtrace as json' do
         expect(subject.error_backtrace).to eql JSON(exception.backtrace.to_json)
+      end
+    end
+
+    context 'when record already exists' do
+      before do
+        subject
+      end
+
+      it 'does not create a failure record' do
+        expect {
+          subject
+        }.to_not change(described_class, :count)
       end
     end
   end
