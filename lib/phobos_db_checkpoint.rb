@@ -3,6 +3,7 @@ require 'digest'
 require 'active_record'
 require 'phobos'
 
+require 'phobos_db_checkpoint/event_helper'
 require 'phobos_db_checkpoint/version'
 require 'phobos_db_checkpoint/errors'
 require 'phobos_db_checkpoint/event_actions'

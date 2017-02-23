@@ -110,40 +110,17 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   end
 
   describe 'attributes' do
+    let(:event_metadata) { Hash(metadata: 'metadata', checksum: checksum, group_id: 'group_id') }
     it 'has a getter override for payload returning symbolic keys' do
       expect(subject.payload).to eql({ payload: 'payload' })
     end
 
     it 'has a getter override for metadata returning symbolic keys' do
-      expect(subject.metadata).to eql({ metadata: 'metadata', checksum: 'checksum' })
-    end
-  end
-
-  describe '#configured_handler' do
-    before do
-      Phobos.silence_log = true
-      Phobos.configure('spec/phobos.test.yml')
+      expect(subject.metadata).to eql(event_metadata)
     end
 
-    context 'when group id is not found in Phobos configuration' do
-      let(:event_metadata) { Hash(group_id: 'check-testpoint') }
-
-      it 'fails with HandlerNotFoundError' do
-        expect {
-          subject.configured_handler
-        }.to raise_error(
-          PhobosDBCheckpoint::HandlerNotFoundError,
-          "Phobos Handler not found for group id 'check-testpoint'"
-        )
-      end
-    end
-
-    context 'when group id is found in Phobos configuration' do
-      let(:event_metadata) { Hash(group_id: 'test-checkpoint') }
-
-      it 'returns the name of the configured handler for this event' do
-        expect(subject.configured_handler).to eql Phobos::EchoHandler
-      end
+    it 'has a group_id getter for pulling metadata[:group_id]' do
+      expect(subject.group_id).to eql(event_metadata[:group_id])
     end
   end
 

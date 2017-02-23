@@ -41,7 +41,7 @@ describe PhobosDBCheckpoint::Event, type: :db do
 
     it 'returns the name of the configured handler for this event' do
       event = PhobosDBCheckpoint::Event.new(group_id: 'test-checkpoint')
-      expect(event.configured_handler).to eql Phobos::EchoHandler.to_s
+      expect(event.configured_handler).to eql Phobos::EchoHandler
     end
   end
 end

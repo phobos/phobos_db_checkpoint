@@ -1,5 +1,7 @@
 module PhobosDBCheckpoint
   class Failure < ActiveRecord::Base
+    include PhobosDBCheckpoint::EventHelper
+
     scope :by_checksum, -> (val) { where("metadata->>'checksum' = ?", val) }
     scope :by_topic, -> (val) { where("metadata->>'topic' = ?", val) }
     scope :by_group_id, -> (val) { where("metadata->>'group_id' = ?", val) }
@@ -28,6 +30,10 @@ module PhobosDBCheckpoint
       attributes['metadata'].deep_symbolize_keys
     end
 
+    def group_id
+      metadata[:group_id]
+    end
+
     # Can we delete the failure already at this stage?
     # Since a new error will be created after failing again X times in a row?
     # This would make retrying errors a simple task, one click and forget about it.
@@ -38,18 +44,6 @@ module PhobosDBCheckpoint
           payload,
           metadata.merge(retry_count: 0)
         )
-    end
-
-    def configured_handler
-      Phobos
-        .config
-        .listeners
-        .find { |l| l.group_id == metadata[:group_id] }
-        .handler
-        .constantize
-    rescue NoMethodError => e
-      raise(HandlerNotFoundError, metadata[:group_id]) if e.message =~ /handler/
-      raise e
     end
   end
 end

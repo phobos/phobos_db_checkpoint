@@ -41,16 +41,23 @@ module PhobosDBCheckpoint
     post "/#{VERSION}/events/:id/retry" do
       content_type :json
       event = PhobosDBCheckpoint::Event.find(params['id'])
-      handler_name = event.configured_handler
+      metadata = {
+        listener_id: 'events_api/retry',
+        group_id: event.group_id,
+        topic: event.topic,
+        retry_count: 0
+      }
 
-      unless handler_name
-        status 422
-        return { error: true, message: 'no handler configured for this event' }.to_json
-      end
-
-      handler_class = handler_name.constantize
-      metadata = { listener_id: 'events_api/retry', group_id: event.group_id, topic: event.topic, retry_count: 0 }
-      event_action = handler_class.new.consume(event.payload, metadata)
+      event_action =
+        begin
+          event
+            .configured_handler
+            .new
+            .consume(event.payload, metadata)
+        rescue HandlerNotFoundError
+          status 422
+          return { error: true, message: 'no handler configured for this event' }.to_json
+        end
 
       { acknowledged: event_action.is_a?(PhobosDBCheckpoint::Ack) }.to_json
     end
