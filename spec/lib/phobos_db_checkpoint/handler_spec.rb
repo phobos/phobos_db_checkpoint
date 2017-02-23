@@ -180,15 +180,60 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
 
   describe '.retry_consume?' do
     subject { TestPhobosDbCheckpointHandler }
-    it 'is true if metadata is less than DEFAULT_MAX_RETRIES' do
-      expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_truthy
-      expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_truthy
-      expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_truthy
-      expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
+
+    context 'when Phobos config specifies max_retries' do
+      before do
+        Phobos.silence_log = true
+        Phobos.configure('spec/phobos.test.yml')
+      end
+
+      it 'will retry while retry count is less than configured max_retries' do
+        expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
+      end
+    end
+
+    context 'when Phobos config has no max_retries' do
+      before do
+        allow(Phobos)
+          .to receive_message_chain(:config, :db_checkpoint)
+          .and_return(nil)
+      end
+
+      it 'will never retry' do
+        expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 9 }, 'bar')).to be_falsey
+      end
+    end
+
+    context 'when Phobos config has max_retries set to null' do
+      before do
+        allow(Phobos)
+          .to receive_message_chain(:config, :db_checkpoint, :max_retries)
+          .and_return(nil)
+      end
+
+      it 'will never retry' do
+        expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
+        expect(subject.retry_consume?('foo', { retry_count: 9 }, 'bar')).to be_falsey
+      end
     end
   end
 
   describe '.around_consume' do
+    before do
+      Phobos.silence_log = true
+      Phobos.configure('spec/phobos.test.yml')
+    end
+
     let(:event_payload) { Hash(payload: 'payload') }
     let(:event_metadata) { Hash(metadata: 'metadata', retry_count: 0) }
     subject { TestPhobosDbCheckpointHandler }
@@ -219,7 +264,7 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       end
 
       context 'but retry consume conditions are not met' do
-        let(:event_metadata) { Hash(metadata: 'metadata', retry_count: PhobosDBCheckpoint::Handler::DEFAULT_MAX_RETRIES) }
+        let(:event_metadata) { Hash(metadata: 'metadata', retry_count: Phobos.config.db_checkpoint.max_retries) }
 
         it 'suppresses the error' do
           expect {

@@ -1,7 +1,6 @@
 module PhobosDBCheckpoint
   module Handler
     include Phobos::Handler
-    DEFAULT_MAX_RETRIES = 3
 
     def self.included(base)
       base.extend(ClassMethods)
@@ -15,17 +14,9 @@ module PhobosDBCheckpoint
       include Phobos::Instrumentation
       include Phobos::Handler::ClassMethods
 
-      # Name...
-      # => retry_consume?
-      # => back_off?
-      # => consume_again?
-      # => fail_consume?
-      # => fail_permanently?
-      # => give_up?
-      # => stop_message?
-      # => consume_failure_condition_met?
       def retry_consume?(event, event_metadata, exception)
-        event_metadata[:retry_count] < DEFAULT_MAX_RETRIES
+        return false unless Phobos.config&.db_checkpoint&.max_retries
+        event_metadata[:retry_count] < Phobos.config&.db_checkpoint&.max_retries
       end
 
       def around_consume(payload, metadata)

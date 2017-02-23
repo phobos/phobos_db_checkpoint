@@ -1,3 +1,6 @@
+db_checkpoint:
+  max_retries: 3
+
 logger:
   file: spec/log/phobos.log
   level: info

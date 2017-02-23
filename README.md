@@ -122,11 +122,19 @@ Note that the `PhobosDBCheckpoint::Handler` will automatically skip already hand
 
 #### <a name="failures"></a> Failures
 
-If your handler fails during the process of consuming the event, the event will be processed again later since it is neither acknowledged or skipped. This could go on indefinitely, so in order to help you deal with this PhobosDBCheckpoint will after three consecutive attempts mark them as permanently failed.
+If your handler fails during the process of consuming the event, the event will be processed again later since it is neither acknowledged or skipped. This could go on indefinitely, so in order to help you deal with this PhobosDBCheckpoint will after a configurable number of consecutive attempts mark them as permanently failed. This config is set in Phobos configuration as such:
 
-This is done by inspecting the retry counter in the Phobos metadata, creating a `Failure` record and then skipping the event. You can easily retry these events later by simply invoking `retry!` on them.
+```yml
+db_checkpoint:
+  max_retries: 3
+```
 
-By overriding the `retry_consume?` method you can take control over the conditions that apply for retrying consumption. Whenever these are not met, a failing event will be moved out of the queue and become a Failure.
+The retry decision is driven by inspecting the retry counter in the Phobos metadata, and if not meeting the retry criteria it will result in creating a `Failure` record and then skipping the event. You can easily retry these events later by simply invoking `retry!` on them.
+
+*Nota bene:* If not configured, `PhobosDBCheckpoint::Handler` will fail events upon first encountered exception.
+
+Optionally, by overriding the `retry_consume?` method you can take control over the conditions that apply for retrying consumption. Whenever these are not met, a failing event will be moved out of the queue and become a Failure.
+
 The control is based on `event`, `event_metadata` and `exception`:
 
 ```ruby
