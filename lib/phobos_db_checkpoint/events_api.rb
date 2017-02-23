@@ -54,7 +54,7 @@ module PhobosDBCheckpoint
             .configured_handler
             .new
             .consume(event.payload, metadata)
-        rescue HandlerNotFoundError
+        rescue ListenerNotFoundError
           status 422
           return { error: true, message: 'no handler configured for this event' }.to_json
         end
