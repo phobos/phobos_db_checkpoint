@@ -1,15 +1,20 @@
 module PhobosDBCheckpoint
   module EventHelper
-    def configured_handler
-      Phobos
+    def configured_listener
+      listener = Phobos
         .config
         .listeners
         .find { |l| l.group_id == self.group_id }
+
+      raise(ListenerNotFoundError, self.group_id) unless listener
+
+      listener
+    end
+
+    def configured_handler
+      configured_listener
         .handler
         .constantize
-    rescue NoMethodError => e
-      raise(HandlerNotFoundError, self.group_id) if e.message =~ /handler/
-      raise e
     end
   end
 end

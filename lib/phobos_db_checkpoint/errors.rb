@@ -1,8 +1,8 @@
 module PhobosDBCheckpoint
   class PhobosDBCheckpointError < StandardError; end
-  class HandlerNotFoundError < PhobosDBCheckpointError
+  class ListenerNotFoundError < PhobosDBCheckpointError
     def initialize(group_id)
-      super("Phobos Handler not found for group id '#{group_id}'")
+      super("Phobos Listener not found for group id '#{group_id}'")
     end
   end
 end
