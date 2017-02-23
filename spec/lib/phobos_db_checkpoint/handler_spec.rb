@@ -202,12 +202,12 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
           .and_return(nil)
       end
 
-      it 'will never retry' do
-        expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 9 }, 'bar')).to be_falsey
+      it 'will retry forever' do
+        expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 9 }, 'bar')).to be_truthy
       end
     end
 
@@ -218,12 +218,12 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
           .and_return(nil)
       end
 
-      it 'will never retry' do
-        expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_falsey
-        expect(subject.retry_consume?('foo', { retry_count: 9 }, 'bar')).to be_falsey
+      it 'will retry forever' do
+        expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 2 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 3 }, 'bar')).to be_truthy
+        expect(subject.retry_consume?('foo', { retry_count: 9 }, 'bar')).to be_truthy
       end
     end
   end

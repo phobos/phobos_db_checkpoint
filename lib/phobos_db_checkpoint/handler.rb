@@ -15,7 +15,7 @@ module PhobosDBCheckpoint
       include Phobos::Handler::ClassMethods
 
       def retry_consume?(event, event_metadata, exception)
-        return false unless Phobos.config&.db_checkpoint&.max_retries
+        return true unless Phobos.config&.db_checkpoint&.max_retries
         event_metadata[:retry_count] < Phobos.config&.db_checkpoint&.max_retries
       end
 
