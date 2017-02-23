@@ -10,6 +10,7 @@ require 'pg'
 
 require 'simplecov'
 require 'coveralls'
+
 # save to CircleCI's artifacts directory if we're on CircleCI
 if ENV['CIRCLE_ARTIFACTS']
   dir = File.join(ENV['CIRCLE_ARTIFACTS'], "coverage")
@@ -21,7 +22,9 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   Coveralls::SimpleCov::Formatter
 ])
 
-SimpleCov.start
+SimpleCov.start do
+  add_filter '/spec/setup'
+end
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 SPEC_DB_DIR = 'spec/setup'

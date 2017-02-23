@@ -20,6 +20,17 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     )
   end
 
+  def create_failure(created_at:, payload:, metadata:, exception: nil)
+    PhobosDBCheckpoint::Failure.create(
+      created_at:      created_at,
+      payload:         payload,
+      metadata:        metadata,
+      error_class:     exception&.class&.name,
+      error_message:   exception&.class&.message,
+      error_backtrace: exception&.class&.backtrace
+    )
+  end
+
   let!(:event) { create_event }
 
   before do
@@ -108,7 +119,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       create_event(entity_id: '2', payload: {mark: '|C|'}, event_time: Time.now + 2000)
     end
 
-    context 'when called without arguments' do
+    context 'when called with limit' do
       it 'returns the X most recent events' do
         get '/v1/events?limit=2'
         body = last_response.body
@@ -166,6 +177,68 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
         body = last_response.body
         expect(JSON.parse(body).length).to eql 1
         expect(body).to include '|A|'
+      end
+    end
+  end
+
+  describe 'GET /v1/failures' do
+    before do
+      3.times.with_index do |i|
+        create_failure(
+          created_at: 1.hour.ago + i*60,
+          payload: {
+            'data' => 'data'
+          },
+          metadata: {
+            'meta' => 'meta',
+            'topic' => "topic-#{i+1}",
+            'group_id' => "group_id-#{i+1}"
+          }
+        )
+      end
+    end
+
+    context 'when called with limit' do
+      it 'returns the X most recent failures' do
+        get '/v1/failures?limit=2'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 2
+        expect(body).to include 'topic-3'
+        expect(body).to include 'topic-2'
+        expect(body).to_not include 'topic-1'
+      end
+    end
+
+    context 'when called with "offset"' do
+      it 'returns the X most recent failures in the correct offset' do
+        get '/v1/failures?limit=2&offset=2'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'topic-3'
+        expect(body).to_not include 'topic-2'
+        expect(body).to include 'topic-1'
+      end
+    end
+
+    context 'when called with "topic"' do
+      it 'returns the X most recent failures filtered by topic' do
+        get '/v1/failures?limit=100&topic=topic-2'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'topic-1'
+        expect(body).to include 'topic-2'
+        expect(body).to_not include 'topic-3'
+      end
+    end
+
+    context 'when called with "group_id"' do
+      it 'returns the X most recent failures filtered by group_id' do
+        get '/v1/failures?limit=100&group_id=group_id-3'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'group_id-1'
+        expect(body).to_not include 'group_id-2'
+        expect(body).to include 'group_id-3'
       end
     end
   end

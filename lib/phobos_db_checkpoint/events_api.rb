@@ -91,6 +91,7 @@ module PhobosDBCheckpoint
       query = query.by_group_id(params['group_id']) if params['group_id']
 
       query
+        .order(created_at: :desc)
         .limit(limit)
         .offset(offset)
         .to_json

@@ -1,9 +1,9 @@
 class Phobos02CreateFailures < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
   def up
     create_table :failures do |t|
+      t.timestamp :created_at,     index: false
       t.json      :payload,        index: false
       t.json      :metadata,       index: false
-      t.string    :checksum,       index: true
       t.string    :error_class,    index: false
       t.string    :error_message,  index: false
       t.json      :error_backtrace
