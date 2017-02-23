@@ -33,17 +33,5 @@ module PhobosDBCheckpoint
     def group_id
       metadata[:group_id]
     end
-
-    # Can we delete the failure already at this stage?
-    # Since a new error will be created after failing again X times in a row?
-    # This would make retrying errors a simple task, one click and forget about it.
-    def retry!
-      configured_handler
-        .new
-        .consume(
-          payload,
-          metadata.merge(retry_count: 0)
-        )
-    end
   end
 end

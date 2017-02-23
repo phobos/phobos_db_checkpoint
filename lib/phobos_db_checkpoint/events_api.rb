@@ -54,9 +54,9 @@ module PhobosDBCheckpoint
             .configured_handler
             .new
             .consume(event.payload, metadata)
-        rescue ListenerNotFoundError
+        rescue ListenerNotFoundError => e
           status 422
-          return { error: true, message: 'no handler configured for this event' }.to_json
+          return { error: true, message: e.message }.to_json
         end
 
       { acknowledged: event_action.is_a?(PhobosDBCheckpoint::Ack) }.to_json
@@ -95,6 +95,23 @@ module PhobosDBCheckpoint
         .limit(limit)
         .offset(offset)
         .to_json
+    end
+
+    post "/#{VERSION}/failures/:id/retry" do
+      content_type :json
+      failure = PhobosDBCheckpoint::Failure.find(params['id'])
+
+      failure_action =
+        begin
+          PhobosDBCheckpoint::RetryFailure
+            .new(failure)
+            .perform
+        rescue => e
+          status 422
+          return { error: true, message: e.message }.to_json
+        end
+
+      { acknowledged: failure_action.is_a?(PhobosDBCheckpoint::Ack) }.to_json
     end
   end
 end
