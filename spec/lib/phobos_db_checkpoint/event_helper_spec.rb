@@ -49,21 +49,24 @@ RSpec.describe PhobosDBCheckpoint::EventHelper, type: :db do
   end
 
   describe 'method missing' do
+    let(:handler) { Phobos::EchoHandler.new }
     context 'when method is starting with "fetch_"' do
-      context 'when handler implements the method' do
-        before do
-          Phobos::EchoHandler.class_eval do
-            def foo_bar(payload)
-              'baz'
-            end
+      context 'and handler implements the method' do
+        class DummyHandler
+          attr_accessor :payload
+          def foo_bar(payload)
+            'baz'
           end
+        end
+        let(:payload) { Hash('payload' => 'payload') }
+        let(:handler) { DummyHandler.new.tap { |h| h.payload = payload } }
+
+        before do
+          allow(Phobos::EchoHandler).to receive(:new).and_return(handler)
+          expect(handler).to receive(:foo_bar).with(payload).and_call_original
         end
 
-        after do
-          Phobos::EchoHandler.class_eval do
-            remove_method :foo_bar
-          end
-        end
+        after { DummyHandler.class_eval { remove_method :foo_bar } }
 
         it 'delegates to the configured handler' do
           expect(subject.fetch_foo_bar).to eql 'baz'

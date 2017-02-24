@@ -172,6 +172,8 @@ describe PhobosDBCheckpoint::Failure, type: :db do
             end
           end
 
+          after { DummyHandler.class_eval { remove_method :entity_id } }
+
           it 'sets entity_id' do
             expect(subject.entity_id).to eql('entity_id')
           end
@@ -195,6 +197,8 @@ describe PhobosDBCheckpoint::Failure, type: :db do
             end
           end
 
+          after { DummyHandler.class_eval { remove_method :event_time } }
+
           it 'sets event_time' do
             expect(subject.event_time).to eql(event_time)
           end
@@ -217,6 +221,8 @@ describe PhobosDBCheckpoint::Failure, type: :db do
             end
           end
 
+          after { DummyHandler.class_eval { remove_method :event_type } }
+
           it 'sets event_type' do
             expect(subject.event_type).to eql('event_type')
           end
@@ -238,6 +244,8 @@ describe PhobosDBCheckpoint::Failure, type: :db do
               end
             end
           end
+
+          after { DummyHandler.class_eval { remove_method :event_version } }
 
           it 'sets event_version' do
             expect(subject.event_version).to eql('event_version')

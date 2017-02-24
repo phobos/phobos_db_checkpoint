@@ -263,13 +263,10 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
     context 'when handler is configured' do
       before do
-        Phobos::EchoHandler.class_eval do
-          include PhobosDBCheckpoint::Handler
-          def consume(payload, metadata)
-            ack('aggregate_id', 'creation_time', 'event_type', 'event_version')
-          end
-        end
         allow(Phobos::EchoHandler).to receive(:new).and_return(handler)
+        allow(handler)
+          .to receive(:consume)
+          .and_return(PhobosDBCheckpoint::Ack.new('aggregate_id', 'creation_time', 'event_type', 'event_version'))
       end
 
       it 'calls the configured handler with event payload' do
