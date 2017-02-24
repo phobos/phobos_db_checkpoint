@@ -123,7 +123,8 @@ describe PhobosDBCheckpoint::Failure, type: :db do
 
   describe 'attributes' do
     let(:event_metadata) { Hash(metadata: 'metadata', checksum: checksum, group_id: 'test-checkpoint') }
-
+    class DummyHandler
+    end
 
     describe '#payload' do
       let(:event_payload) { Hash(a: 1, b: 2) }
@@ -152,58 +153,95 @@ describe PhobosDBCheckpoint::Failure, type: :db do
         expect(Phobos::EchoHandler)
           .to receive(:new)
           .at_least(:once)
-          .and_return(handler_instance)
+          .and_return(DummyHandler.new)
       end
 
       describe '#entity_id' do
-        let(:entity_id) { 'foo' }
+        let(:event_payload) { Hash('entity_id' => 'entity_id') }
 
-        it 'does not set entity_id' do
+        it 'by default does not set entity_id' do
           expect(subject.entity_id).to be_nil
         end
 
-        it 'sets entity_id' do
-          expect(handler_instance).to receive(:entity_id).and_return(entity_id)
-          expect(subject.entity_id).to eql(entity_id)
+        context 'when entity_id is implemented on handler' do
+          before do
+            DummyHandler.class_eval do
+              def entity_id(payload)
+                payload['entity_id']
+              end
+            end
+          end
+
+          it 'sets entity_id' do
+            expect(subject.entity_id).to eql('entity_id')
+          end
         end
       end
 
       describe '#event_time' do
-        let(:event_time) { Time.now }
+        let(:event_time) { Time.parse(Time.now.to_s) }
+        let(:event_payload) { Hash('event_time' => event_time) }
 
-        it 'does not set event_time' do
+        it 'by default does not set entity_id' do
           expect(subject.event_time).to be_nil
         end
 
-        it 'sets event_time' do
-          expect(handler_instance).to receive(:event_time).and_return(event_time)
-          expect(subject.event_time).to eql(event_time)
+        context 'when event_time is implemented on handler' do
+          before do
+            DummyHandler.class_eval do
+              def event_time(payload)
+                payload['event_time']
+              end
+            end
+          end
+
+          it 'sets event_time' do
+            expect(subject.event_time).to eql(event_time)
+          end
         end
       end
 
       describe '#event_type' do
-        let(:event_type) { 'event_type' }
+        let(:event_payload) { Hash('event_type' => 'event_type') }
 
-        it 'does not set event_type' do
+        it 'by default does not set event_type' do
           expect(subject.event_type).to be_nil
         end
 
-        it 'sets event_type' do
-          expect(handler_instance).to receive(:event_type).and_return(event_type)
-          expect(subject.event_type).to eql(event_type)
+        context 'when event_type is implemented on handler' do
+          before do
+            DummyHandler.class_eval do
+              def event_type(payload)
+                payload['event_type']
+              end
+            end
+          end
+
+          it 'sets event_type' do
+            expect(subject.event_type).to eql('event_type')
+          end
         end
       end
 
       describe '#event_version' do
-        let(:event_version) { 'event_version' }
+        let(:event_payload) { Hash('event_version' => 'event_version') }
 
-        it 'does not set event_version' do
+        it 'by default does not set event_version' do
           expect(subject.event_version).to be_nil
         end
 
-        it 'sets event_version' do
-          expect(handler_instance).to receive(:event_version).and_return(event_version)
-          expect(subject.event_version).to eql(event_version)
+        context 'when event_version is implemented on handler' do
+          before do
+            DummyHandler.class_eval do
+              def event_version(payload)
+                payload['event_version']
+              end
+            end
+          end
+
+          it 'sets event_version' do
+            expect(subject.event_version).to eql('event_version')
+          end
         end
       end
     end

@@ -21,7 +21,7 @@ module PhobosDBCheckpoint
       rex = m.to_s.match /^fetch_(.+)/
       if rex[0]
         handler = configured_handler.new
-        handler.send(rex[1]) if handler.respond_to?(rex[1])
+        handler.send(rex[1], payload) if handler.respond_to?(rex[1])
       end
     end
   end
