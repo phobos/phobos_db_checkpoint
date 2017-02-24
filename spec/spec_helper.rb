@@ -1,3 +1,8 @@
+require 'simplecov'
+SimpleCov.start do
+  add_filter '/spec/'
+end
+
 require 'bundler/setup'
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
@@ -8,7 +13,6 @@ require 'pry-byebug'
 require 'database_cleaner'
 require 'pg'
 
-require 'simplecov'
 require 'coveralls'
 
 # save to CircleCI's artifacts directory if we're on CircleCI
@@ -21,10 +25,6 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
   Coveralls::SimpleCov::Formatter
 ])
-
-SimpleCov.start do
-  add_filter '/spec/setup'
-end
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 SPEC_DB_DIR = 'spec/setup'
