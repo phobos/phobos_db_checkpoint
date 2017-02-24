@@ -165,7 +165,7 @@ class MyHandler
       payload['my_payload']['my_event_time']
     end
 
-    def entity_type(payload)
+    def event_type(payload)
       # Extract event type...
       payload['my_payload']['my_event_type']
     end

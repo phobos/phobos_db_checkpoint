@@ -84,9 +84,10 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   end
 
   describe 'attributes' do
+    let(:time) { Time.now.to_s }
     let(:event_payload) {
       Hash(
-        'time' => Time.now.to_s
+        'time' => time
       )
     }
 
@@ -114,7 +115,7 @@ describe PhobosDBCheckpoint::Failure, type: :db do
     end
 
     it 'has a getter override for payload returning symbolic keys' do
-      expect(subject.payload).to eql({ payload: 'payload' })
+      expect(subject.payload).to eql({ time: time })
     end
 
     it 'has a getter override for metadata returning symbolic keys' do
