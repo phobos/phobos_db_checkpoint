@@ -98,7 +98,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
         post "/v1/events/#{event.id}/retry"
         expect(last_response.status).to eql 422
-        expect(last_response.body).to eql Hash(error: true, message: 'no handler configured for this event').to_json
+        expect(last_response.body).to eql Hash(error: true, message: "Phobos Listener not found for group id 'another-group'").to_json
       end
     end
 

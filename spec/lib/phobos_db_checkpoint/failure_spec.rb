@@ -123,22 +123,4 @@ describe PhobosDBCheckpoint::Failure, type: :db do
       expect(subject.group_id).to eql(event_metadata[:group_id])
     end
   end
-
-  describe '#retry!' do
-    let(:handler) { Phobos::EchoHandler.new }
-    let(:event_metadata) { Hash(group_id: 'test-checkpoint') }
-
-    before do
-      Phobos.silence_log = true
-      Phobos.configure('spec/phobos.test.yml')
-      expect(Phobos::EchoHandler).to receive(:new).and_return(handler)
-    end
-
-    it 'invoke #consume on the configured handler with reset retry_count' do
-      expect(handler)
-        .to receive(:consume)
-        .with(event_payload, event_metadata.merge(retry_count: 0))
-      subject.retry!
-    end
-  end
 end
