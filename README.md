@@ -129,9 +129,9 @@ db_checkpoint:
   max_retries: 3
 ```
 
-The retry decision is driven by inspecting the retry counter in the Phobos metadata, and if not meeting the retry criteria it will result in creating a `Failure` record and then skipping the event. You can easily retry these events later by simply invoking `retry!` on them.
+If this setting is not present, the default behavior of `PhobosDBCheckpoint::Handler` is to keep retrying the same event forever.
 
-*Nota bene:* If not configured, `PhobosDBCheckpoint::Handler` will fail events upon first encountered exception.
+The retry decision is driven by inspecting the retry counter in the Phobos metadata, and if not meeting the retry criteria it will result in creating a `Failure` record and then skipping the event. You can easily retry these events later by simply invoking `retry!` on them.
 
 Optionally, by overriding the `retry_consume?` method you can take control over the conditions that apply for retrying consumption. Whenever these are not met, a failing event will be moved out of the queue and become a Failure.
 
@@ -152,25 +152,29 @@ end
 PhobosDBCheckpoint does not know the internals of your payload, so it is necessary to yield control for setting certain fields to the application.
 In case you need to customize failures there are a number of methods you should implement in your handler:
 
-```
-def entity_id(payload)
-  # Extract event id...
-  payload['my_payload']['my_event_id']
-end
+```ruby
+class MyHandler
+  include PhobosDBCheckpoint::Handler
+    def entity_id(payload)
+      # Extract event id...
+      payload['my_payload']['my_event_id']
+    end
 
-def entity_time(payload)
-  # Extract event time...
-  payload['my_payload']['my_event_time']
-end
+    def entity_time(payload)
+      # Extract event time...
+      payload['my_payload']['my_event_time']
+    end
 
-def entity_type(payload)
-  # Extract event type...
-  payload['my_payload']['my_event_type']
-end
+    def entity_type(payload)
+      # Extract event type...
+      payload['my_payload']['my_event_type']
+    end
 
-def event_version(payload)
-  # Extract event version...
-  payload['my_payload']['my_event_version']
+    def event_version(payload)
+      # Extract event version...
+      payload['my_payload']['my_event_version']
+    end
+  end
 end
 ```
 
