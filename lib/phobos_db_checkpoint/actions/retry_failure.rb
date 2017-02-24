@@ -5,8 +5,9 @@ module PhobosDBCheckpoint
     end
 
     def perform
-      retry_failure!
+      result = retry_failure!
       @failure.destroy
+      result
     end
 
     private

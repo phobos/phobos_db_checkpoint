@@ -243,6 +243,83 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     end
   end
 
+  describe 'POST /v1/failures/:id/retry' do
+    let(:handler) { Phobos::EchoHandler.new }
+    let(:retry_failure_instance) { PhobosDBCheckpoint::RetryFailure.new(failure) }
+    let(:group_id) { 'test-checkpoint' }
+    let(:failure) do
+      create_failure(
+        created_at: 1.hour.ago,
+        payload: {
+          'data' => 'data'
+        },
+        metadata: {
+          'meta' => 'meta',
+          'group_id' => group_id
+        }
+      )
+    end
+
+
+    context 'when handler is configured' do
+      before do
+        Phobos::EchoHandler.class_eval do
+          include PhobosDBCheckpoint::Handler
+          def consume(payload, metadata)
+            ack('aggregate_id', 'creation_time', 'event_type', 'event_version')
+          end
+        end
+        allow(Phobos::EchoHandler).to receive(:new).and_return(handler)
+      end
+
+      it 'calls the configured handler with event payload' do
+        expect(PhobosDBCheckpoint::RetryFailure)
+          .to receive(:new)
+          .with(failure)
+          .and_return(retry_failure_instance)
+
+        expect(retry_failure_instance)
+          .to receive(:perform)
+          .and_call_original
+
+        post "/v1/failures/#{failure.id}/retry"
+        expect(last_response.body).to eql Hash(acknowledged: true).to_json
+      end
+    end
+
+    context 'when handler returns something different than PhobosDBCheckpoint::Ack' do
+      before do
+        allow(Phobos::EchoHandler).to receive(:new).and_return(handler)
+      end
+
+      it 'returns acknowledged false' do
+        expect(handler)
+          .to receive(:consume)
+          .and_return('not-ack')
+
+        post "/v1/failures/#{failure.id}/retry"
+        expect(last_response.body).to eql Hash(acknowledged: false).to_json
+      end
+    end
+
+    context 'when handler is not configured anymore' do
+      let(:group_id) { 'another-group' }
+      it 'returns 422' do
+        post "/v1/failures/#{failure.id}/retry"
+        expect(last_response.status).to eql 422
+        expect(last_response.body).to eql Hash(error: true, message: "Phobos Listener not found for group id 'another-group'").to_json
+      end
+    end
+
+    context 'when the event does not exist' do
+      it 'returns 404' do
+        post "/v1/failures/not-found/retry"
+        expect(last_response.status).to eql 404
+        expect(last_response.body).to eql Hash(error: true, message: 'event not found').to_json
+      end
+    end
+  end
+
   context 'with not found' do
     it 'returns 404' do
       get '/v1/not-found'
