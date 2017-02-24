@@ -20,6 +20,17 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     )
   end
 
+  def create_failure(created_at:, payload:, metadata:, exception: nil)
+    PhobosDBCheckpoint::Failure.create(
+      created_at:      created_at,
+      payload:         payload,
+      metadata:        metadata,
+      error_class:     exception&.class&.name,
+      error_message:   exception&.class&.message,
+      error_backtrace: exception&.class&.backtrace
+    )
+  end
+
   let!(:event) { create_event }
 
   before do
@@ -87,7 +98,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
         post "/v1/events/#{event.id}/retry"
         expect(last_response.status).to eql 422
-        expect(last_response.body).to eql Hash(error: true, message: 'no handler configured for this event').to_json
+        expect(last_response.body).to eql Hash(error: true, message: "Phobos Listener not found for group id 'another-group'").to_json
       end
     end
 
@@ -108,7 +119,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       create_event(entity_id: '2', payload: {mark: '|C|'}, event_time: Time.now + 2000)
     end
 
-    context 'when called without arguments' do
+    context 'when called with limit' do
       it 'returns the X most recent events' do
         get '/v1/events?limit=2'
         body = last_response.body
@@ -166,6 +177,166 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
         body = last_response.body
         expect(JSON.parse(body).length).to eql 1
         expect(body).to include '|A|'
+      end
+    end
+  end
+
+  describe 'GET /v1/failures' do
+    let(:now) { Time.parse(Date.today.beginning_of_day.to_s) }
+
+    before do
+      3.times.with_index do |i|
+        PhobosDBCheckpoint::Failure.create do |record|
+          record.topic         = "topic-#{i+1}"
+          record.group_id      = "group_id-#{i+1}"
+          record.entity_id     = "entity_id-#{i+1}"
+          record.event_time    = now + i*3600
+          record.event_type    = "event_type-#{i+1}"
+          record.event_version = "event_version-#{i+1}"
+          record.checksum      = "checksum-#{i+1}"
+          record.payload       = Hash('payload' => 'payload')
+          record.metadata      = Hash('metadata' => 'metadata')
+        end
+      end
+    end
+
+    context 'when called with limit' do
+      it 'returns the X most recent failures' do
+        get '/v1/failures?limit=2'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 2
+        expect(body).to include 'topic-3'
+        expect(body).to include 'topic-2'
+        expect(body).to_not include 'topic-1'
+      end
+    end
+
+    context 'when called with "offset"' do
+      it 'returns the X most recent failures in the correct offset' do
+        get '/v1/failures?limit=2&offset=2'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'topic-3'
+        expect(body).to_not include 'topic-2'
+        expect(body).to include 'topic-1'
+      end
+    end
+
+    context 'when called with "topic"' do
+      it 'returns the X most recent failures filtered by topic' do
+        get '/v1/failures?limit=100&topic=topic-2'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'topic-1'
+        expect(body).to include 'topic-2'
+        expect(body).to_not include 'topic-3'
+      end
+    end
+
+    context 'when called with "group_id"' do
+      it 'returns the X most recent failures filtered by group_id' do
+        get '/v1/failures?limit=100&group_id=group_id-3'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'group_id-1'
+        expect(body).to_not include 'group_id-2'
+        expect(body).to include 'group_id-3'
+      end
+    end
+
+    context 'when called with "entity_id"' do
+      it 'returns the X most recent failures filtered by entity_id' do
+        get '/v1/failures?limit=100&entity_id=entity_id-3'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'entity_id-1'
+        expect(body).to_not include 'entity_id-2'
+        expect(body).to include 'entity_id-3'
+      end
+    end
+
+    context 'when called with "event_type"' do
+      it 'returns the X most recent failures filtered by event_type' do
+        get '/v1/failures?limit=100&event_type=event_type-3'
+        body = last_response.body
+        expect(JSON.parse(body).length).to eql 1
+        expect(body).to_not include 'event_type-1'
+        expect(body).to_not include 'event_type-2'
+        expect(body).to include 'event_type-3'
+      end
+    end
+  end
+
+  describe 'POST /v1/failures/:id/retry' do
+    let(:handler) { Phobos::EchoHandler.new }
+    let(:retry_failure_instance) { PhobosDBCheckpoint::RetryFailure.new(failure) }
+    let(:group_id) { 'test-checkpoint' }
+    let(:failure) do
+      create_failure(
+        created_at: 1.hour.ago,
+        payload: {
+          'data' => 'data'
+        },
+        metadata: {
+          'meta' => 'meta',
+          'group_id' => group_id
+        }
+      )
+    end
+
+
+    context 'when handler is configured' do
+      before do
+        allow(Phobos::EchoHandler).to receive(:new).and_return(handler)
+        allow(handler)
+          .to receive(:consume)
+          .and_return(PhobosDBCheckpoint::Ack.new('aggregate_id', 'creation_time', 'event_type', 'event_version'))
+      end
+
+      it 'calls the configured handler with event payload' do
+        expect(PhobosDBCheckpoint::RetryFailure)
+          .to receive(:new)
+          .with(failure)
+          .and_return(retry_failure_instance)
+
+        expect(retry_failure_instance)
+          .to receive(:perform)
+          .and_call_original
+
+        post "/v1/failures/#{failure.id}/retry"
+        expect(last_response.body).to eql Hash(acknowledged: true).to_json
+      end
+    end
+
+    context 'when handler returns something different than PhobosDBCheckpoint::Ack' do
+      before do
+        allow(Phobos::EchoHandler).to receive(:new).and_return(handler)
+      end
+
+      it 'returns acknowledged false' do
+        expect(handler)
+          .to receive(:consume)
+          .and_return('not-ack')
+
+        post "/v1/failures/#{failure.id}/retry"
+        expect(last_response.body).to eql Hash(acknowledged: false).to_json
+      end
+    end
+
+    context 'when handler is not configured anymore' do
+      let(:group_id) { 'another-group' }
+      it 'returns 422' do
+        post "/v1/failures/#{failure.id}/retry"
+        expect(last_response.status).to eql 422
+        expect(last_response.body).to eql Hash(error: true, message: "Phobos Listener not found for group id 'another-group'").to_json
+      end
+    end
+
+    context 'when the event does not exist' do
+      it 'returns 404' do
+        post "/v1/failures/not-found/retry"
+        expect(last_response.status).to eql 404
+        expect(last_response.body).to eql Hash(error: true, message: 'event not found').to_json
       end
     end
   end

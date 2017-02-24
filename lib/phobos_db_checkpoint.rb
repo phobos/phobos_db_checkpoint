@@ -3,10 +3,14 @@ require 'digest'
 require 'active_record'
 require 'phobos'
 
+require 'phobos_db_checkpoint/event_helper'
 require 'phobos_db_checkpoint/version'
+require 'phobos_db_checkpoint/errors'
 require 'phobos_db_checkpoint/event_actions'
 require 'phobos_db_checkpoint/event'
+require 'phobos_db_checkpoint/failure'
 require 'phobos_db_checkpoint/handler'
+require 'phobos_db_checkpoint/actions/retry_failure'
 
 module PhobosDBCheckpoint
   DEFAULT_DB_DIR = 'db'.freeze

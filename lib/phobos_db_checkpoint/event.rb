@@ -1,5 +1,6 @@
 module PhobosDBCheckpoint
   class Event < ActiveRecord::Base
+    include PhobosDBCheckpoint::EventHelper
     after_initialize :assign_checksum
 
     def exists?
@@ -12,14 +13,6 @@ module PhobosDBCheckpoint
       self.event_type = ack.event_type
       self.event_version = ack.event_version
       save!
-    end
-
-    def configured_handler
-      Phobos
-        .config
-        .listeners
-        .find { |listener| listener.group_id == self.group_id }
-        &.handler
     end
 
     private

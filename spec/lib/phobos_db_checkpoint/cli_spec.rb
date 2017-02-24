@@ -62,6 +62,19 @@ RSpec.describe PhobosDBCheckpoint::CLI do
     end
   end
 
+  describe '$ phobos_db_checkpoint version' do
+    let(:invoke_cmd) do
+      cmd = PhobosDBCheckpoint::CLI::Commands.new
+      cmd.destination_root = destination_root
+      cmd.invoke(:version)
+    end
+
+    it 'prints the version' do
+      expect(STDOUT).to receive(:puts).with(PhobosDBCheckpoint::VERSION)
+      invoke_cmd
+    end
+  end
+
   describe '$ phobos_db_checkpoint migration NAME' do
     let(:invoke_cmd) do
       cmd = PhobosDBCheckpoint::CLI::Commands.new

@@ -14,6 +14,11 @@ module PhobosDBCheckpoint
       include Phobos::Instrumentation
       include Phobos::Handler::ClassMethods
 
+      def retry_consume?(event, event_metadata, exception)
+        return true unless Phobos.config&.db_checkpoint&.max_retries
+        event_metadata[:retry_count] < Phobos.config&.db_checkpoint&.max_retries
+      end
+
       def around_consume(payload, metadata)
         event = PhobosDBCheckpoint::Event.new(
           topic: metadata[:topic],
@@ -31,7 +36,15 @@ module PhobosDBCheckpoint
           end
 
           event_action = instrument('db_checkpoint.event_action', event_metadata) do
-            yield
+            begin
+              yield
+            rescue => e
+              if retry_consume?(event, event_metadata, e)
+                raise e
+              else
+                Failure.record(event: event, event_metadata: event_metadata, exception: e)
+              end
+            end
           end
 
           case event_action

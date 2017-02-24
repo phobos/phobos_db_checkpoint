@@ -14,6 +14,7 @@ Phobos DB Checkpoint is a plugin to [Phobos](https://github.com/klarna/phobos) a
 1. [Usage](#usage)
   1. [Setup](#setup)
   1. [Handler](#handler)
+    1. [Failures](#failures)
   1. [Accessing the events](#accessing-the-events)
   1. [Events API](#events-api)
   1. [Instrumentation](#instrumentation)
@@ -118,6 +119,66 @@ end
 If your handler returns anything different than an __ack__ it won't be saved to the database.
 
 Note that the `PhobosDBCheckpoint::Handler` will automatically skip already handled events (i.e. duplicate Kafka messages).
+
+#### <a name="failures"></a> Failures
+
+If your handler fails during the process of consuming the event, the event will be processed again acknowledged or skipped. The default behavior of `Phobos` is to back off but keep retrying the same event forever, in order to guarantee messages are processed in the correct order. However, this blocking process could go on indefinitely, so in order to help you deal with this PhobosDBCheckpoint can (on an opt-in basis) mark them as permanently failed after a configurable number of attempts.
+
+This configuration is set in Phobos configuration:
+
+```yml
+db_checkpoint:
+  max_retries: 3
+```
+
+The retry decision is driven by inspecting the retry counter in the Phobos metadata, and if not meeting the retry criteria it will result in creating a `Failure` record and then skipping the event. You can easily retry these events later by simply invoking `retry!` on them.
+
+Optionally, by overriding the `retry_consume?` method you can take control over the conditions that apply for retrying consumption. Whenever these are not met, a failing event will be moved out of the queue and become a Failure.
+
+The control is based on `payload` and `exception`:
+
+```ruby
+class MyHandler
+  include PhobosDBCheckpoint::Handler
+
+  def retry_consume?(event, event_metadata, exception)
+    event_metadata[:retry_count] <= MyApp.config.max_retries
+  end
+end
+```
+
+##### Failure details
+
+Since PhobosDBCheckpoint does not know about the internals of your payload, for setting certain fields it is necessary to yield control back to the application.
+In case you need to customize your failures, these are the methods you should implement in your handler:
+
+```ruby
+class MyHandler
+  include PhobosDBCheckpoint::Handler
+    def entity_id(payload)
+      # Extract event id...
+      payload['my_payload']['my_event_id']
+    end
+
+    def entity_time(payload)
+      # Extract event time...
+      payload['my_payload']['my_event_time']
+    end
+
+    def event_type(payload)
+      # Extract event type...
+      payload['my_payload']['my_event_type']
+    end
+
+    def event_version(payload)
+      # Extract event version...
+      payload['my_payload']['my_event_version']
+    end
+  end
+end
+```
+
+This is completely optional, and if a method is not implemented, the corresponding value will simply be set to null.
 
 ### <a name="accessing-the-events">Accessing the events</a>
 
