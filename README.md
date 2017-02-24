@@ -147,6 +147,35 @@ class MyHandler
 end
 ```
 
+##### Failure details
+
+PhobosDBCheckpoint does not know the internals of your payload, so it is necessary to yield control for setting certain fields to the application.
+In case you need to customize failures there are a number of methods you should implement in your handler:
+
+```
+def entity_id(payload)
+  # Extract event id...
+  payload['my_payload']['my_event_id']
+end
+
+def entity_time(payload)
+  # Extract event time...
+  payload['my_payload']['my_event_time']
+end
+
+def entity_type(payload)
+  # Extract event type...
+  payload['my_payload']['my_event_type']
+end
+
+def event_version(payload)
+  # Extract event version...
+  payload['my_payload']['my_event_version']
+end
+```
+
+This is completely optional, and if a method is not implemented, the corresponding value will simply be set to null.
+
 ### <a name="accessing-the-events">Accessing the events</a>
 
 `PhobosDBCheckpoint::Event` is a plain `ActiveRecord::Base` model, feel free to play with it.
