@@ -122,20 +122,20 @@ Note that the `PhobosDBCheckpoint::Handler` will automatically skip already hand
 
 #### <a name="failures"></a> Failures
 
-If your handler fails during the process of consuming the event, the event will be processed again later since it is neither acknowledged or skipped. This could go on indefinitely, so in order to help you deal with this PhobosDBCheckpoint will after a configurable number of consecutive attempts mark them as permanently failed. This config is set in Phobos configuration as such:
+If your handler fails during the process of consuming the event, the event will be processed again acknowledged or skipped. The default behavior of `Phobos` is to back off but keep retrying the same event forever, in order to guarantee messages are processed in the correct order. However, this blocking process could go on indefinitely, so in order to help you deal with this PhobosDBCheckpoint can (on an opt-in basis) mark them as permanently failed after a configurable number of attempts.
+
+This configuration is set in Phobos configuration:
 
 ```yml
 db_checkpoint:
   max_retries: 3
 ```
 
-If this setting is not present, the default behavior of `PhobosDBCheckpoint::Handler` is to keep retrying the same event forever.
-
 The retry decision is driven by inspecting the retry counter in the Phobos metadata, and if not meeting the retry criteria it will result in creating a `Failure` record and then skipping the event. You can easily retry these events later by simply invoking `retry!` on them.
 
 Optionally, by overriding the `retry_consume?` method you can take control over the conditions that apply for retrying consumption. Whenever these are not met, a failing event will be moved out of the queue and become a Failure.
 
-The control is based on `event`, `event_metadata` and `exception`:
+The control is based on `payload` and `exception`:
 
 ```ruby
 class MyHandler
@@ -149,8 +149,8 @@ end
 
 ##### Failure details
 
-PhobosDBCheckpoint does not know the internals of your payload, so it is necessary to yield control for setting certain fields to the application.
-In case you need to customize failures there are a number of methods you should implement in your handler:
+Since PhobosDBCheckpoint does not know about the internals of your payload, for setting certain fields it is necessary to yield control back to the application.
+In case you need to customize your failures, these are the methods you should implement in your handler:
 
 ```ruby
 class MyHandler
