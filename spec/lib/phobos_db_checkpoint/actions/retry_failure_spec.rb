@@ -2,10 +2,22 @@ require 'spec_helper'
 
 describe PhobosDBCheckpoint::RetryFailure, type: :db do
   let(:event_payload) { Hash(payload: 'payload') }
-  let(:event_metadata) { Hash(metadata: 'metadata') }
-  let(:attributes_for_create) { Hash(event_payload: event_payload, event_metadata: event_metadata) }
+  let(:event_metadata) { Hash(metadata: 'metadata', group_id: 'test-checkpoint') }
+  let(:event) do
+    PhobosDBCheckpoint::Event.new(
+      topic: event_metadata[:topic],
+      group_id: event_metadata[:group_id],
+      payload: event_payload
+    )
+  end
+  let(:attributes_for_create) { Hash(event: event, event_metadata: event_metadata) }
   let(:failure) { PhobosDBCheckpoint::Failure.record(attributes_for_create) }
   subject { described_class.new(failure) }
+
+  before do
+    Phobos.silence_log = true
+    Phobos.configure('spec/phobos.test.yml')
+  end
 
   describe '#perform' do
     let(:handler_class) { double(:handler_class) }

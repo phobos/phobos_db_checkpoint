@@ -17,24 +17,12 @@ module PhobosDBCheckpoint
         .constantize
     end
 
-    def fetch_entity_id
-      handler = configured_handler.new
-      handler.entity_id if handler.respond_to?(:entity_id)
-    end
-
-    def fetch_event_time
-      handler = configured_handler.new
-      handler.event_time if handler.respond_to?(:event_time)
-    end
-
-    def fetch_event_type
-      handler = configured_handler.new
-      handler.event_type if handler.respond_to?(:event_type)
-    end
-
-    def fetch_event_version
-      handler = configured_handler.new
-      handler.event_version if handler.respond_to?(:event_version)
+    def method_missing(m, *args, &block)
+      rex = m.to_s.match /^fetch_(.+)/
+      if rex[0]
+        handler = configured_handler.new
+        handler.send(rex[1]) if handler.respond_to?(rex[1])
+      end
     end
   end
 end

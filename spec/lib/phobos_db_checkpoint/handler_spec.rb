@@ -264,7 +264,9 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       end
 
       context 'but retry consume conditions are not met' do
-        let(:event_metadata) { Hash(metadata: 'metadata', retry_count: Phobos.config.db_checkpoint.max_retries) }
+        let(:event_metadata) {
+          Hash(metadata: 'metadata', retry_count: Phobos.config.db_checkpoint.max_retries, group_id: 'test-checkpoint')
+        }
 
         it 'suppresses the error' do
           expect {
