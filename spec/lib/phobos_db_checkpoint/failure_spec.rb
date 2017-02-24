@@ -83,44 +83,6 @@ describe PhobosDBCheckpoint::Failure, type: :db do
     end
   end
 
-  describe 'scopes' do
-    before do
-      3.times.with_index do |i|
-        attributes_for_create = {
-          event: event,
-          event_metadata: {
-            id: i+1,
-            checksum: "checksum-#{i+1}",
-            group_id: "group_id-#{i+1}",
-            topic: "topic-#{i+1}"
-          }
-        }
-        described_class.record(attributes_for_create)
-      end
-    end
-
-    describe '.by_checksum' do
-      it 'returns records with matching metadata checksum' do
-        expect(described_class.by_checksum('checksum-2'))
-          .to match_array described_class.where(id: 2)
-      end
-    end
-
-    describe '.by_topic' do
-      it 'returns records with matching metadata checksum' do
-        expect(described_class.by_topic('topic-1'))
-          .to match_array described_class.where(id: 1)
-      end
-    end
-
-    describe '.by_group_id' do
-      it 'returns records with matching metadata checksum' do
-        expect(described_class.by_group_id('group_id-3'))
-          .to match_array described_class.where(id: 3)
-      end
-    end
-  end
-
   describe 'attributes' do
     let(:event_metadata) { Hash(metadata: 'metadata', checksum: checksum, group_id: 'test-checkpoint') }
     class DummyHandler

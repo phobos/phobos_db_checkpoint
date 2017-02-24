@@ -87,11 +87,13 @@ module PhobosDBCheckpoint
       offset = (params['offset'] || 0).to_i
 
       query = PhobosDBCheckpoint::Failure
-      query = query.by_topic(params['topic']) if params['topic']
-      query = query.by_group_id(params['group_id']) if params['group_id']
+      query = query.where(topic: params['topic']) if params['topic']
+      query = query.where(group_id: params['group_id']) if params['group_id']
+      query = query.where(entity_id: params['entity_id']) if params['entity_id']
+      query = query.where(event_type: params['event_type']) if params['event_type']
 
       query
-        .order(created_at: :desc)
+        .order(event_time: :desc)
         .limit(limit)
         .offset(offset)
         .to_json

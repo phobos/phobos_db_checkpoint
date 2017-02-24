@@ -2,10 +2,6 @@ module PhobosDBCheckpoint
   class Failure < ActiveRecord::Base
     include PhobosDBCheckpoint::EventHelper
 
-    scope :by_checksum, -> (val) { where("metadata->>'checksum' = ?", val) }
-    scope :by_topic, -> (val) { where("metadata->>'topic' = ?", val) }
-    scope :by_group_id, -> (val) { where("metadata->>'group_id' = ?", val) }
-
     def self.record(event:, event_metadata:, exception: nil)
       return if exists?(event_metadata[:checksum])
 
@@ -26,7 +22,7 @@ module PhobosDBCheckpoint
     end
 
     def self.exists?(checksum)
-      by_checksum(checksum).exists?
+      where(checksum: checksum).exists?
     end
 
     def payload
@@ -38,7 +34,7 @@ module PhobosDBCheckpoint
     end
 
     def group_id
-      metadata[:group_id]
+      attributes['group_id'] || metadata[:group_id]
     end
   end
 end
