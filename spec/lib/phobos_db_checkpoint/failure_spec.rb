@@ -84,8 +84,24 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   end
 
   describe 'attributes' do
-    let(:event_metadata) { Hash(metadata: 'metadata', checksum: checksum, group_id: 'test-checkpoint') }
+    let(:event_payload) {
+      Hash(
+        'time' => Time.now.to_s
+      )
+    }
+
+    let(:event_metadata) {
+      Hash(
+        metadata: 'metadata',
+        checksum: checksum,
+        group_id: 'test-checkpoint'
+      )
+    }
     class DummyHandler
+      include PhobosDBCheckpoint::Handler
+      def event_time(payload)
+        payload['time']
+      end
     end
 
     describe '#payload' do
@@ -107,6 +123,21 @@ describe PhobosDBCheckpoint::Failure, type: :db do
 
     it 'has a group_id getter for pulling metadata[:group_id]' do
       expect(subject.group_id).to eql(event_metadata[:group_id])
+    end
+
+    it 'has created_at' do
+      expect(subject.created_at).to_not be_nil
+      expect(subject.created_at).to be_an_instance_of(Time)
+    end
+
+    it 'has event_time' do
+      expect(Phobos::EchoHandler)
+        .to receive(:new)
+        .at_least(:once)
+        .and_return(DummyHandler.new)
+
+      expect(subject.event_time).to_not be_nil
+      expect(subject.event_time).to be_an_instance_of(Time)
     end
 
     describe 'attributes yielded from handler' do
