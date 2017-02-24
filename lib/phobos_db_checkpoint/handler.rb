@@ -42,7 +42,7 @@ module PhobosDBCheckpoint
               if retry_consume?(event, event_metadata, e)
                 raise e
               else
-                Failure.record(event_payload: payload, event_metadata: event_metadata, exception: e)
+                Failure.record(event: event, exception: e)
               end
             end
           end

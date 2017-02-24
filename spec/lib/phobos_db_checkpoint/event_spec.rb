@@ -1,6 +1,16 @@
 require 'spec_helper'
 
 describe PhobosDBCheckpoint::Event, type: :db do
+  describe '#payload' do
+    let(:payload) { Hash(a: 1, b: 2) }
+    subject { PhobosDBCheckpoint::Event.create(payload: payload).reload }
+
+    it 'stores payload as serialized json' do
+      expect(subject.payload).to be_a(Hash)
+      expect(subject.payload).to eq(JSON(payload.to_json))
+    end
+  end
+
   describe '#checksum' do
     it 'is created based on the payload' do
       expect(PhobosDBCheckpoint::Event.new.checksum).to be_nil

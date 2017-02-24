@@ -6,11 +6,18 @@ module PhobosDBCheckpoint
     scope :by_topic, -> (val) { where("metadata->>'topic' = ?", val) }
     scope :by_group_id, -> (val) { where("metadata->>'group_id' = ?", val) }
 
-    def self.record(event_payload:, event_metadata:, exception: nil)
+    def self.record(event:, event_metadata:, exception: nil)
       return if exists?(event_metadata[:checksum])
 
       create do |record|
-        record.payload         = event_payload
+        record.topic           = event_metadata[:topic]
+        record.group_id        = event_metadata[:group_id]
+        record.entity_id       = event.fetch_entity_id
+        record.event_time      = event.fetch_event_time
+        record.event_type      = event.fetch_event_type
+        record.event_version   = event.fetch_event_version
+        record.checksum        = event_metadata[:checksum]
+        record.payload         = event.payload
         record.metadata        = event_metadata
         record.error_class     = exception&.class&.name
         record.error_message   = exception&.message
