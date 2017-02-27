@@ -141,7 +141,7 @@ The control is based on `payload` and `exception`:
 class MyHandler
   include PhobosDBCheckpoint::Handler
 
-  def retry_consume?(event, event_metadata, exception)
+  def self.retry_consume?(event, event_metadata, exception)
     event_metadata[:retry_count] <= MyApp.config.max_retries
   end
 end
