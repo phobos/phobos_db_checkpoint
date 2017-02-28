@@ -196,21 +196,6 @@ $ phobos_db_checkpoint init_events_api
    Start the API with: `rackup config.ru`
 ```
 
-```sh
-$ curl "http://localhost:9292/v1/events/1"
-# {
-#   "id": 1,
-#   "topic": "test-partitions",
-#   "group_id": "test-checkpoint-1",
-#   "entity_id": "1",
-#   "event_time": "2016-09-19T19:35:26.854Z",
-#   "event_type": "create",
-#   "event_version": "v1",
-#   "checksum": "188773471ec0f898fd81d272760a027f",
-#   "payload": "{\"a\":\"b\"}"
-# }
-```
-
 The available routes are:
 
 * GET `/ping`
@@ -223,6 +208,68 @@ The available routes are:
   * `group_id`
   * `event_type`
 * POST `/v1/events/:id/retry`
+* GET `/v1/failures/:id`
+* GET `/v1/failures` This route accepts the following params:
+  * `limit`, default: 20
+  * `offset`, default: 0
+  * `entity_id`
+  * `topic`
+  * `group_id`
+  * `event_type`
+* POST `/v1/failures/:id/retry`
+
+#### Events endpoint
+
+Sample output for event:
+
+```sh
+$ curl "http://localhost:9292/v1/events/1"
+# {
+#   "id": 1,
+#   "topic": "test-partitions",
+#   "group_id": "test-checkpoint-1",
+#   "entity_id": "1",
+#   "event_time": "2016-09-19T19:35:26.854Z",
+#   "event_type": "create",
+#   "event_version": "v1",
+#   "checksum": "188773471ec0f898fd81d272760a027f",
+#   "payload": {
+#     "a": "b"
+#   }
+# }
+```
+
+#### Failures endpoint
+
+Sample output for failure:
+
+```sh
+$ curl "http://localhost:9292/v1/failures/1"
+# {
+#   "id": 1,
+#   "created_at": "2017-02-28T07:53:21.790Z",
+#   "topic": "test-partitions",
+#   "group_id": "test-checkpoint-1",
+#   "entity_id": "32de6e8e-4317-4ff7-bbce-aa4a6d41294a",
+#   "event_time": "2016-08-10T07:07:58.907Z",
+#   "event_type": "test-event-type",
+#   "event_version": "v1",
+#   "checksum": "12c9e42bca2728fc8193c87979bfe510",
+#   "payload": {
+#     "a": "b"
+#   },
+#   "metadata": {
+#     "c": "d"
+#   },
+#   "error_class": "Faraday::ConnectionFailed",
+#   "error_message": "Failed to open TCP connection to localhost:9200 (Connection refused - connect(2) for \"localhost\" port 9200)",
+#   "error_backtrace": [
+#     "/Users/mathias.klippinge/.rvm/rubies/ruby-2.3.3/lib/ruby/2.3.0/net/http.rb:882:in `rescue in block in connect'",
+#     "/Users/mathias.klippinge/.rvm/rubies/ruby-2.3.3/lib/ruby/2.3.0/net/http.rb:879:in `block in connect'",
+#     "..."
+#   ]
+# }
+```
 
 ### <a name="instrumentation"></a> Instrumentation
 

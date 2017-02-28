@@ -267,6 +267,34 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     end
   end
 
+  describe 'GET /v1/failures/:id' do
+    let!(:failure) do
+      create_failure(
+        created_at: 1.hour.ago,
+        payload: {
+          'data' => 'data'
+        },
+        metadata: {
+          'meta' => 'meta',
+          'group_id' => 'test-checkpoint'
+        }
+      )
+    end
+
+    it 'returns event json' do
+      get "/v1/failures/#{failure.id}"
+      expect(last_response.body).to eql failure.to_json
+    end
+
+    context 'when the failure does not exist' do
+      it 'returns 404' do
+        get "/v1/failures/not-found"
+        expect(last_response.status).to eql 404
+        expect(last_response.body).to eql Hash(error: true, message: 'failure not found').to_json
+      end
+    end
+  end
+
   describe 'POST /v1/failures/:id/retry' do
     let(:handler) { Phobos::EchoHandler.new }
     let(:retry_failure_instance) { PhobosDBCheckpoint::RetryFailure.new(failure) }
@@ -336,7 +364,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns 404' do
         post "/v1/failures/not-found/retry"
         expect(last_response.status).to eql 404
-        expect(last_response.body).to eql Hash(error: true, message: 'event not found').to_json
+        expect(last_response.body).to eql Hash(error: true, message: 'failure not found').to_json
       end
     end
   end
