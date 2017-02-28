@@ -18,7 +18,8 @@ module PhobosDBCheckpoint
     error ActiveRecord::RecordNotFound do
       content_type :json
       status 404
-      { error: true, message: 'event not found' }.to_json
+      type = env['sinatra.route'].match(/\/.+\/(.+)\/:/)[1].chop
+      { error: true, message: "#{type} not found" }.to_json
     end
 
     error StandardError do
@@ -96,6 +97,13 @@ module PhobosDBCheckpoint
         .order(event_time: :desc)
         .limit(limit)
         .offset(offset)
+        .to_json
+    end
+
+    get "/#{VERSION}/failures/:id" do
+      content_type :json
+      PhobosDBCheckpoint::Failure
+        .find(params['id'])
         .to_json
     end
 
