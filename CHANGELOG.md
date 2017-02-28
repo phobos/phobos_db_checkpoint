@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.0 (2017-02-28)
+
+- [feature] Add end point for fetching individual failures
+
 ## 1.0.0 (2017-02-24)
 
 - [feature] Introduce failures and failure handling in Handler. Add failures to the events API
