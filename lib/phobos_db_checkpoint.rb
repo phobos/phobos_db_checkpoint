@@ -22,6 +22,8 @@ module PhobosDBCheckpoint
     attr_reader :db_config
     attr_accessor :db_config_path, :db_dir, :migration_path
 
+    # :nodoc:
+    # ActiveRecord hook
     def table_name_prefix
       :phobos_db_checkpoint_
     end
