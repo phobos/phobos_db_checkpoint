@@ -23,7 +23,7 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
     let(:handler_class) { double(:handler_class) }
     let(:handler_instance) { double(:handler_instance) }
 
-    it 'synchronously attempts to consume the event again' do
+    it 'attempts to consume the event again' do
       expect(failure)
         .to receive(:configured_handler)
         .and_return(handler_class)
@@ -34,7 +34,7 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
 
       expect(handler_instance)
         .to receive(:consume)
-        .with(event_payload, event_metadata.merge(retry_count: 0))
+        .with(event_payload.to_json, event_metadata.merge(retry_count: 0))
 
       subject.perform
     end
