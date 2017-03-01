@@ -6,6 +6,9 @@ RSpec.describe 'PhobosDBCheckpoint::VERSION' do
   end
 
   it 'the latest version is described in CHANGELOG' do
-    expect(File.read('CHANGELOG.md').match(/^## (\d+.\d+.\d+)/)[1]).to eq(PhobosDBCheckpoint::VERSION)
+    rex = File.read('CHANGELOG.md').match(/^## (?<version>\d+\.\d+\.\d+)(?<pre>\.\w+)?/)
+    version = rex['version']
+    version += rex['pre'] if rex.names.include?('pre')
+    expect(version).to eq(PhobosDBCheckpoint::VERSION)
   end
 end
