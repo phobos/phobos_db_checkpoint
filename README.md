@@ -18,6 +18,7 @@ Phobos DB Checkpoint is a plugin to [Phobos](https://github.com/klarna/phobos) a
   1. [Accessing the events](#accessing-the-events)
   1. [Events API](#events-api)
   1. [Instrumentation](#instrumentation)
+1. [Upgrading](#upgrading)
 1. [Development](#development)
 
 ## <a name="installation"></a> Installation
@@ -294,6 +295,30 @@ The following payload is included for all notifications:
   * offset
   * retry_count
   * checksum
+
+## <a name="upgrading"></a> Upgrading
+
+#### From <2.0 to 2.x
+
+##### Rename database tables
+
+The database table names for Event and Failure has been changed to be namespaced under `phobos_db_checkpoint_` to avoid potential collisions with projects that already have these names.
+
+This means that when upgrading one would have to add a new migration to rename from old name to new:
+
+```ruby
+def up
+  rename_table :events, :phobos_db_checkpoint_events
+  rename_table :failures, :phobos_db_checkpoint_failures
+end
+```
+
+Alternatively, one could potentially configure the tables to use the old names, as such:
+
+```ruby
+PhobosDBCheckpoint::Event.table_name = :events
+PhobosDBCheckpoint::Failure.table_name = :failures
+```
 
 ## <a name="development"></a> Development
 

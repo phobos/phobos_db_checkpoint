@@ -15,7 +15,7 @@ module PhobosDBCheckpoint
     def retry_failure!
       handler
         .consume(
-          @failure.payload,
+          @failure.payload.to_json,
           @failure.metadata.merge(retry_count: 0)
         )
     end

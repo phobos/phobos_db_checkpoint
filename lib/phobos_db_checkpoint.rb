@@ -22,6 +22,12 @@ module PhobosDBCheckpoint
     attr_reader :db_config
     attr_accessor :db_config_path, :db_dir, :migration_path
 
+    # :nodoc:
+    # ActiveRecord hook
+    def table_name_prefix
+      :phobos_db_checkpoint_
+    end
+
     def configure(pool_size: nil)
       load_db_config(pool_size: pool_size)
       at_exit { PhobosDBCheckpoint.close_db_connection }
