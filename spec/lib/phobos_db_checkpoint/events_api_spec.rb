@@ -198,66 +198,48 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     context 'when called with limit' do
       it 'returns the X most recent failures' do
         get '/v1/failures?limit=2'
-        body = last_response.body
-        expect(JSON.parse(body).length).to eql 2
-        expect(body).to include 'topic-3'
-        expect(body).to include 'topic-2'
-        expect(body).to_not include 'topic-1'
+        body = JSON.parse(last_response.body)
+        expect(body.pluck('topic')).to eq ['topic-3', 'topic-2']
       end
     end
 
     context 'when called with "offset"' do
       it 'returns the X most recent failures in the correct offset' do
         get '/v1/failures?limit=2&offset=2'
-        body = last_response.body
-        expect(JSON.parse(body).length).to eql 1
-        expect(body).to_not include 'topic-3'
-        expect(body).to_not include 'topic-2'
-        expect(body).to include 'topic-1'
+        body = JSON.parse(last_response.body)
+        expect(body.pluck('topic')).to eq ['topic-1']
       end
     end
 
     context 'when called with "topic"' do
       it 'returns the X most recent failures filtered by topic' do
         get '/v1/failures?limit=100&topic=topic-2'
-        body = last_response.body
-        expect(JSON.parse(body).length).to eql 1
-        expect(body).to_not include 'topic-1'
-        expect(body).to include 'topic-2'
-        expect(body).to_not include 'topic-3'
+        body = JSON.parse(last_response.body)
+        expect(body.pluck('topic')).to eq ['topic-2']
       end
     end
 
     context 'when called with "group_id"' do
       it 'returns the X most recent failures filtered by group_id' do
         get '/v1/failures?limit=100&group_id=group_id-3'
-        body = last_response.body
-        expect(JSON.parse(body).length).to eql 1
-        expect(body).to_not include 'group_id-1'
-        expect(body).to_not include 'group_id-2'
-        expect(body).to include 'group_id-3'
+        body = JSON.parse(last_response.body)
+        expect(body.pluck('group_id')).to eq ['group_id-3']
       end
     end
 
     context 'when called with "entity_id"' do
       it 'returns the X most recent failures filtered by entity_id' do
         get '/v1/failures?limit=100&entity_id=entity_id-3'
-        body = last_response.body
-        expect(JSON.parse(body).length).to eql 1
-        expect(body).to_not include 'entity_id-1'
-        expect(body).to_not include 'entity_id-2'
-        expect(body).to include 'entity_id-3'
+        body = JSON.parse(last_response.body)
+        expect(body.pluck('entity_id')).to eq ['entity_id-3']
       end
     end
 
     context 'when called with "event_type"' do
       it 'returns the X most recent failures filtered by event_type' do
         get '/v1/failures?limit=100&event_type=event_type-3'
-        body = last_response.body
-        expect(JSON.parse(body).length).to eql 1
-        expect(body).to_not include 'event_type-1'
-        expect(body).to_not include 'event_type-2'
-        expect(body).to include 'event_type-3'
+        body = JSON.parse(last_response.body)
+        expect(body.pluck('event_type')).to eq ['event_type-3']
       end
     end
   end
