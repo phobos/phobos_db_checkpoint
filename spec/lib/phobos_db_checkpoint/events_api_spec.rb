@@ -125,8 +125,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events' do
         get '/v1/events?limit=2'
         body = JSON.parse(last_response.body)
-        expect(body.length).to eql 2
-        expect(body.pluck('entity_id')).to eq ['4', '1']
+        expect(body.pluck('entity_id')).to eq ['3', '2']
       end
     end
 
@@ -134,8 +133,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events in the correct offset' do
         get '/v1/events?limit=2&offset=2'
         body = JSON.parse(last_response.body)
-        expect(body.length).to eql 2
-        expect(body.pluck('entity_id')).to eq ['3' , '2']
+        expect(body.pluck('entity_id')).to eq ['4' , '1']
       end
     end
 
@@ -143,7 +141,6 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events filtered by entity_id' do
         get '/v1/events?limit=100&entity_id=1'
         body = JSON.parse(last_response.body)
-        expect(body.length).to eql 1
         expect(body.pluck('entity_id')).to eq ['1']
       end
     end
@@ -152,7 +149,6 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events filtered by topic' do
         get '/v1/events?limit=100&topic=test2'
         body = JSON.parse(last_response.body)
-        expect(body.length).to eql 2
         expect(body.pluck('entity_id')).to eq ['4', '1']
       end
     end
@@ -161,8 +157,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events filtered by group_id' do
         get '/v1/events?limit=100&group_id=test-checkpoint'
         body = JSON.parse(last_response.body)
-        expect(body.length).to eql 4
-        expect(body.pluck('entity_id')).to eq ['4' , '1', '3', '2']
+        expect(body.pluck('entity_id')).to eq ['3', '2', '4', '1']
       end
     end
 
@@ -170,7 +165,6 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events filtered by event_type' do
         get '/v1/events?limit=100&event_type=special'
         body = JSON.parse(last_response.body)
-        expect(body.length).to eql 2
         expect(body.pluck('entity_id')).to eq ['4' , '1']
       end
     end

@@ -75,7 +75,7 @@ module PhobosDBCheckpoint
       query = query.where(event_type: params['event_type']) if params['event_type']
 
       query
-        .order(event_time: :desc, created_at: :desc)
+        .ascending_order
         .limit(limit)
         .offset(offset)
         .to_json
@@ -94,7 +94,7 @@ module PhobosDBCheckpoint
       query = query.where(event_type: params['event_type']) if params['event_type']
 
       query
-        .order(event_time: :desc, created_at: :desc)
+        .ascending_order
         .limit(limit)
         .offset(offset)
         .to_json

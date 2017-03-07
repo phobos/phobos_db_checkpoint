@@ -3,6 +3,8 @@ module PhobosDBCheckpoint
     include PhobosDBCheckpoint::EventHelper
     after_initialize :assign_checksum
 
+    scope :ascending_order, -> { order('event_time desc nulls last', 'created_at desc nulls last') }
+
     def exists?
       Event.where(topic: topic, group_id: group_id, checksum: checksum).exists?
     end
