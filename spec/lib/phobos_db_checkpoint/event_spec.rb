@@ -54,4 +54,14 @@ describe PhobosDBCheckpoint::Event, type: :db do
       expect(event.configured_handler).to eql Phobos::EchoHandler
     end
   end
+
+  describe '#created_at' do
+    let!(:frozen_time) { Time.new(2017,12,12,23,40,02) }
+
+    it 'sets created_at' do
+      allow(Time).to receive(:now).and_return(frozen_time)
+      event = PhobosDBCheckpoint::Event.create!
+      expect(event.reload.created_at).to eq(frozen_time)
+    end
+  end
 end

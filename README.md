@@ -299,6 +299,18 @@ The following payload is included for all notifications:
 
 ## <a name="upgrading"></a> Upgrading
 
+#### From 2.1.0 >= _version_ >= 2.0.0 to 2.2.0
+
+The database table for Event has had created_at added to it.
+
+This means that when upgrading one would have to add a new migration to create this:
+
+```ruby
+def up
+  add_column :phobos_db_checkpoint_events, :created_at, :datetime
+end
+```
+
 #### From <2.0 to 2.x
 
 ##### Rename database tables

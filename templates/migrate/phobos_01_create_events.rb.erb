@@ -1,6 +1,7 @@
 class Phobos01CreateEvents < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
   def up
     create_table :phobos_db_checkpoint_events do |t|
+      t.timestamp :created_at,    index: false
       t.string    :topic,         index: true
       t.string    :group_id,      index: true
       t.string    :entity_id,     index: true
