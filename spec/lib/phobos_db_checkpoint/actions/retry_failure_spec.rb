@@ -56,6 +56,35 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
           failure.reload
         }.to raise_error ActiveRecord::RecordNotFound
       end
+
+      it 'does not persist the event' do
+        expect {
+          subject.perform
+        }.to_not change(PhobosDBCheckpoint::Event, :count)
+      end
+
+      context 'when returning an ack' do
+        let(:ack) { PhobosDBCheckpoint::Ack.new('A1B', Time.now, 'event-type', 'v1') }
+        before do
+          expect(failure)
+            .to receive(:configured_handler)
+            .and_return(handler_class)
+
+          expect(handler_class)
+            .to receive(:new)
+            .and_return(handler_instance)
+
+          expect(handler_instance)
+            .to receive(:consume)
+            .and_return(ack)
+        end
+
+        it 'persist the event' do
+          expect {
+            subject.perform
+          }.to change(PhobosDBCheckpoint::Event, :count).by(1)
+        end
+      end
     end
 
     context 'when consume is not successful' do
