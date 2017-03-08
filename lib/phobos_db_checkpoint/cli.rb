@@ -34,8 +34,18 @@ module PhobosDBCheckpoint
              aliases: ['-d'],
              default: 'db/migrate',
              banner: 'Destination folder relative to your project'
+      option :config,
+             aliases: ['-c'],
+             default: 'config/database.yml',
+             banner: 'Database configuration relative to your project'
       def copy_migrations
-        PhobosDBCheckpoint.configure
+        if options[:config]
+          ENV['DB_CONFIG'] = options[:config]
+        end
+
+        unless (ActiveRecord::Base.connection_pool.with_connection { |con| con.active? } rescue false)
+          PhobosDBCheckpoint.configure(pool_size: 1)
+        end
 
         destination_fullpath = File.join(destination_root, options[:destination])
         generated_migrations = list_migrations(destination_fullpath)

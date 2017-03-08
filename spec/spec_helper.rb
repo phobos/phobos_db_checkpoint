@@ -45,7 +45,9 @@ rescue ActiveRecord::NoDatabaseError
 end
 
 FileUtils.rm_rf(SPEC_DB_DIR)
-`./bin/phobos_db_checkpoint copy-migrations -d #{PhobosDBCheckpoint.migration_path}`
+result = %x{./bin/phobos_db_checkpoint copy-migrations --destination #{PhobosDBCheckpoint.migration_path} --config #{PhobosDBCheckpoint.db_config_path}}
+puts result
+raise "Copy migrations command failed" unless $?.success?
 
 Rake.application['db:create'].invoke
 Rake.application['db:migrate'].invoke
