@@ -1,0 +1,9 @@
+class Phobos02CreateFailures < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def up
+    add_column :phobos_db_checkpoint_events, :created_at, :datetime
+  end
+
+  def down
+    remove_column :phobos_db_checkpoint_events, :created_at
+  end
+end
