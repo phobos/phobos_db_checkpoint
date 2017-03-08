@@ -61,7 +61,7 @@ module PhobosDBCheckpoint
           end
         end
       rescue
-        file_path && File.size(file_path) == 0 && FileUtils.rm(file_path)
+        file_path && FileUtils.rm(file_path)
         raise
       end
 
