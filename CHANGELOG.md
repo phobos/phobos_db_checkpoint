@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.0 (2017-03-07)
+
+- [enhancement] When retrying failures, an event is created if they return an ack
+
 ## 2.0.0 (2017-03-01)
 
 - [enhancement] Rename tables
