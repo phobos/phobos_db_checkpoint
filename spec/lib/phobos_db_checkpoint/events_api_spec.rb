@@ -370,17 +370,11 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
   end
 
   describe 'DELETE /v1/failures/:id' do
-    let(:group_id) { 'test-checkpoint' }
     let(:failure) do
       create_failure(
         created_at: 1.hour.ago,
-        payload: {
-          'data' => 'data'
-        },
-        metadata: {
-          'meta' => 'meta',
-          'group_id' => group_id
-        }
+        payload: { 'data' => 'data' },
+        metadata: { 'meta' => 'meta' }
       )
     end
 
