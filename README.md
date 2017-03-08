@@ -210,6 +210,7 @@ The available routes are:
   * `event_type`
 * POST `/v1/events/:id/retry`
 * GET `/v1/failures/:id`
+* DELETE `/v1/failures/:id`
 * GET `/v1/failures` This route accepts the following params:
   * `limit`, default: 20
   * `offset`, default: 0
