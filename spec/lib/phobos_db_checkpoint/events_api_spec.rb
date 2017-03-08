@@ -369,6 +369,34 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     end
   end
 
+  describe 'DELETE /v1/failures/:id' do
+    let(:group_id) { 'test-checkpoint' }
+    let(:failure) do
+      create_failure(
+        created_at: 1.hour.ago,
+        payload: {
+          'data' => 'data'
+        },
+        metadata: {
+          'meta' => 'meta',
+          'group_id' => group_id
+        }
+      )
+    end
+
+    it 'returns acknowledged: true' do
+      delete "/v1/failures/#{failure.id}"
+      expect(last_response.body).to eql Hash(acknowledged: true).to_json
+    end
+
+    it 'deletes the failure' do
+      delete "/v1/failures/#{failure.id}"
+      expect {
+        failure.reload
+      }.to raise_error ActiveRecord::RecordNotFound
+    end
+  end
+
   context 'with not found' do
     it 'returns 404' do
       get '/v1/not-found'

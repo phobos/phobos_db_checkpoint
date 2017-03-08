@@ -107,6 +107,16 @@ module PhobosDBCheckpoint
         .to_json
     end
 
+    delete "/#{VERSION}/failures/:id" do
+      content_type :json
+
+      PhobosDBCheckpoint::Failure
+        .find(params['id'])
+        .destroy
+
+      { acknowledged: true }.to_json
+    end
+
     post "/#{VERSION}/failures/:id/retry" do
       content_type :json
       failure = PhobosDBCheckpoint::Failure.find(params['id'])
