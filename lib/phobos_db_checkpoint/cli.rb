@@ -38,19 +38,19 @@ module PhobosDBCheckpoint
         destination_fullpath = File.join(destination_root, options[:destination])
         generated_migrations = list_migrations(destination_fullpath)
         FileUtils.mkdir_p(destination_fullpath)
-
+        file_path = nil
         template_migrations_metadata.each do |metadata|
-
           if migration_exists?(generated_migrations, metadata[:name])
             say_status('exists', metadata[:name])
-
           else
             file_path = File.join(options[:destination], "#{metadata[:number]}_#{metadata[:name]}")
             template_path = File.join('templates/migrate', metadata[:path])
             template(template_path, file_path)
           end
-
         end
+      rescue
+        File.size(file_path) == 0 && FileUtils.rm(file_path)
+        raise
       end
 
       desc 'migration NAME', 'Generates a new migration with the given name. Use underlines (_) as a separator, ex: add_new_column'
