@@ -35,6 +35,8 @@ module PhobosDBCheckpoint
              default: 'db/migrate',
              banner: 'Destination folder relative to your project'
       def copy_migrations
+        PhobosDBCheckpoint.configure
+
         destination_fullpath = File.join(destination_root, options[:destination])
         generated_migrations = list_migrations(destination_fullpath)
         FileUtils.mkdir_p(destination_fullpath)
@@ -49,7 +51,7 @@ module PhobosDBCheckpoint
           end
         end
       rescue
-        File.size(file_path) == 0 && FileUtils.rm(file_path)
+        file_path && File.size(file_path) == 0 && FileUtils.rm(file_path)
         raise
       end
 

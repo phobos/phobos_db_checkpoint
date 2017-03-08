@@ -1,4 +1,4 @@
-class Phobos01CreateEvents < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+class Phobos01CreateEvents < ActiveRecord::Migration[<%= ActiveRecord::VERSION::STRING.to_f %>]
   def up
     create_table :phobos_db_checkpoint_events do |t|
       t.string    :topic,         index: true

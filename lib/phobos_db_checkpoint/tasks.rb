@@ -17,6 +17,5 @@ module PhobosDBCheckpoint
     end
 
     load 'active_record/railties/databases.rake'
-
   end
 end

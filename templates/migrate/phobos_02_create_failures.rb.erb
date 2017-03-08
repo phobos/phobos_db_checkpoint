@@ -1,4 +1,4 @@
-class Phobos02CreateFailures < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+class Phobos02CreateFailures < ActiveRecord::Migration[<%= ActiveRecord::VERSION::STRING.to_f %>]
   def up
     create_table :phobos_db_checkpoint_failures do |t|
       t.timestamp :created_at,     index: false
