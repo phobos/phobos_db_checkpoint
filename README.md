@@ -299,6 +299,10 @@ The following payload is included for all notifications:
 
 ## <a name="upgrading"></a> Upgrading
 
+#### From 2.2.0 >= _version_ >= 2.0.0 to 2.3.0
+
+The database table for Event has had created_at added to it, run `phobos_db_checkpoint copy-migrations` in your project to receive the migration.
+
 #### From <2.0 to 2.x
 
 ##### Rename database tables

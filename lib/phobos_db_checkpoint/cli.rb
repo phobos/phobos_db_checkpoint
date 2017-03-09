@@ -34,23 +34,35 @@ module PhobosDBCheckpoint
              aliases: ['-d'],
              default: 'db/migrate',
              banner: 'Destination folder relative to your project'
+      option :config,
+             aliases: ['-c'],
+             default: 'config/database.yml',
+             banner: 'Database configuration relative to your project'
       def copy_migrations
+        if options[:config]
+          ENV['DB_CONFIG'] = options[:config]
+        end
+
+        unless active_connection?
+          PhobosDBCheckpoint.configure(pool_size: 1)
+        end
+
         destination_fullpath = File.join(destination_root, options[:destination])
         generated_migrations = list_migrations(destination_fullpath)
         FileUtils.mkdir_p(destination_fullpath)
-
+        file_path = nil
         template_migrations_metadata.each do |metadata|
-
           if migration_exists?(generated_migrations, metadata[:name])
             say_status('exists', metadata[:name])
-
           else
             file_path = File.join(options[:destination], "#{metadata[:number]}_#{metadata[:name]}")
             template_path = File.join('templates/migrate', metadata[:path])
             template(template_path, file_path)
           end
-
         end
+      rescue
+        FileUtils.rm_f(file_path.to_s)
+        raise
       end
 
       desc 'migration NAME', 'Generates a new migration with the given name. Use underlines (_) as a separator, ex: add_new_column'
@@ -116,6 +128,14 @@ module PhobosDBCheckpoint
 
       def new_migration_template
         File.join(self.class.source_root, 'templates/new_migration.rb.erb')
+      end
+
+      def active_connection?
+        ActiveRecord::Base
+          .connection_pool
+          .with_connection { |con| con.active? }
+      rescue
+        false
       end
     end
   end

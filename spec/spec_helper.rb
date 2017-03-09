@@ -45,7 +45,8 @@ rescue ActiveRecord::NoDatabaseError
 end
 
 FileUtils.rm_rf(SPEC_DB_DIR)
-`./bin/phobos_db_checkpoint copy-migrations -d #{PhobosDBCheckpoint.migration_path}`
+result = %x{./bin/phobos_db_checkpoint copy-migrations --destination #{PhobosDBCheckpoint.migration_path} --config #{PhobosDBCheckpoint.db_config_path}}
+raise "Copy migrations command failed\n#{result}" unless $?.success?
 
 Rake.application['db:create'].invoke
 Rake.application['db:migrate'].invoke
@@ -55,6 +56,14 @@ DatabaseCleaner.strategy = :truncation
 DatabaseCleaner::ActiveRecord.config_file_location = PhobosDBCheckpoint.db_config
 
 RSpec.configure do |config|
+  config.before(:context, standalone: true) do
+    ActiveRecord::Base.connection.disconnect!
+  end
+
+  config.after(:context, standalone: true) do
+    PhobosDBCheckpoint.configure
+  end
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
