@@ -61,7 +61,7 @@ module PhobosDBCheckpoint
           end
         end
       rescue
-        FileUtils.rm(file_path.to_s)
+        FileUtils.rm_f(file_path.to_s)
         raise
       end
 
