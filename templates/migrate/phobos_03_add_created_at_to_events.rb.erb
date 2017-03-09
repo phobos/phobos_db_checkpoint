@@ -36,6 +36,26 @@ class Phobos03AddCreatedAtToEvents < ActiveRecord::Migration[<%= ActiveRecord::V
   end
 
   def down
+    say 'Removing index phobos_events_created_at_desc_nulls_last_idx'
+    ActiveRecord::Base.connection.execute <<-SQL
+      DROP INDEX phobos_events_created_at_desc_nulls_last_idx;
+    SQL
+
+    say 'Removing index phobos_events_event_time_desc_nulls_last_idx'
+    ActiveRecord::Base.connection.execute <<-SQL
+      DROP INDEX phobos_events_event_time_desc_nulls_last_idx;
+    SQL
+
+    say 'Removing index phobos_failures_created_at_desc_nulls_last_idx'
+    ActiveRecord::Base.connection.execute <<-SQL
+      DROP INDEX phobos_failures_created_at_desc_nulls_last_idx;
+    SQL
+
+    say 'Removing index phobos_failures_event_time_desc_nulls_last_idx'
+    ActiveRecord::Base.connection.execute <<-SQL
+      DROP INDEX phobos_failures_event_time_desc_nulls_last_idx;
+    SQL
+
     remove_column :phobos_db_checkpoint_events, :created_at
   end
 end
