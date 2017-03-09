@@ -1,6 +1,38 @@
 class Phobos03AddCreatedAtToEvents < ActiveRecord::Migration[<%= ActiveRecord::VERSION::STRING.to_f %>]
   def up
     add_column :phobos_db_checkpoint_events, :created_at, :datetime
+
+    say 'Adding index for phobos_db_checkpoint_events created_at desc nulls last'
+    ActiveRecord::Base.connection.execute <<-SQL
+      CREATE INDEX phobos_events_created_at_desc_nulls_last_idx
+        ON phobos_db_checkpoint_events(
+          created_at DESC NULLS LAST
+        );
+    SQL
+
+    say 'Adding index for phobos_db_checkpoint_events event_time desc nulls last'
+    ActiveRecord::Base.connection.execute <<-SQL
+      CREATE INDEX phobos_events_event_time_desc_nulls_last_idx
+        ON phobos_db_checkpoint_events(
+          event_time DESC NULLS LAST
+        );
+    SQL
+
+    say 'Adding index for phobos_db_checkpoint_failures created_at desc nulls last'
+    ActiveRecord::Base.connection.execute <<-SQL
+      CREATE INDEX phobos_failures_created_at_desc_nulls_last_idx
+        ON phobos_db_checkpoint_failures(
+          created_at DESC NULLS LAST
+        );
+    SQL
+
+    say 'Adding index for phobos_db_checkpoint_failures event_time desc nulls last'
+    ActiveRecord::Base.connection.execute <<-SQL
+      CREATE INDEX phobos_failures_event_time_desc_nulls_last_idx
+        ON phobos_db_checkpoint_failures(
+          event_time DESC NULLS LAST
+        );
+    SQL
   end
 
   def down

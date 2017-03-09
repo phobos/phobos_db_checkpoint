@@ -2,7 +2,9 @@ module PhobosDBCheckpoint
   class Failure < ActiveRecord::Base
     include PhobosDBCheckpoint::EventHelper
 
-    scope :order_by_event_time_and_created_at, -> { order('event_time desc nulls last', 'created_at desc nulls last') }
+    scope :order_by_event_time_and_created_at, -> {
+      order('event_time desc nulls last', 'created_at desc nulls last')
+    }
 
     def self.record(event:, event_metadata:, exception: nil)
       return if exists?(event_metadata[:checksum])
