@@ -249,7 +249,7 @@ describe PhobosDBCheckpoint::Failure, type: :db do
     end
   end
 
-  describe '.order_by_event_time_or_created_at' do
+  describe '.order_by_event_time_and_created_at' do
     before do
       PhobosDBCheckpoint::Failure.delete_all
       PhobosDBCheckpoint::Failure.create(id: '1', entity_id: '1', event_time: nil, created_at: Time.now-100)
@@ -263,9 +263,9 @@ describe PhobosDBCheckpoint::Failure, type: :db do
     it 'sorts it in descending order leaving null timestamp records trailing at the end' do
       expect(
         PhobosDBCheckpoint::Failure
-          .order_by_event_time_or_created_at
+          .order_by_event_time_and_created_at
           .pluck('entity_id')
-      ).to eq ['1', '2', '3', '5', '6', '4']
+      ).to eq ['3', '5', '6', '1', '2', '4']
     end
   end
 end
