@@ -65,7 +65,7 @@ describe PhobosDBCheckpoint::Event, type: :db do
     end
   end
 
-  describe '.ascending_order' do
+  describe '.order_by_event_time_and_created_at' do
     before do
       PhobosDBCheckpoint::Event.delete_all
       PhobosDBCheckpoint::Event.create(id: '1', entity_id: '1', created_at: Time.now-100, event_time: nil)
@@ -77,7 +77,7 @@ describe PhobosDBCheckpoint::Event, type: :db do
     end
 
     it 'sorts it in ascending order leaving null timestamp records trailing at the end' do
-      expect(PhobosDBCheckpoint::Event.ascending_order.pluck('entity_id')).to eq ['3', '5', '6', '1', '2', '4']
+      expect(PhobosDBCheckpoint::Event.order_by_event_time_and_created_at.pluck('entity_id')).to eq ['3', '5', '6', '1', '2', '4']
     end
   end
 end
