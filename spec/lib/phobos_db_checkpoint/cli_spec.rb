@@ -97,7 +97,7 @@ RSpec.describe PhobosDBCheckpoint::CLI do
       end
 
       it 'removes empty file' do
-        expect(FileUtils).to receive(:rm).with('db/migrate/20170208104625857375_phobos_01_create_events.rb')
+        expect(FileUtils).to receive(:rm_f).with('db/migrate/20170208104625857375_phobos_01_create_events.rb')
 
         expect {
           invoke_cmd
