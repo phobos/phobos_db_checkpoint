@@ -43,7 +43,7 @@ module PhobosDBCheckpoint
           ENV['DB_CONFIG'] = options[:config]
         end
 
-        unless (ActiveRecord::Base.connection_pool.with_connection { |con| con.active? } rescue false)
+        unless active_connection?
           PhobosDBCheckpoint.configure(pool_size: 1)
         end
 
@@ -61,7 +61,7 @@ module PhobosDBCheckpoint
           end
         end
       rescue
-        file_path && FileUtils.rm(file_path)
+        FileUtils.rm(file_path.to_s)
         raise
       end
 
@@ -128,6 +128,14 @@ module PhobosDBCheckpoint
 
       def new_migration_template
         File.join(self.class.source_root, 'templates/new_migration.rb.erb')
+      end
+
+      def active_connection?
+        ActiveRecord::Base
+          .connection_pool
+          .with_connection { |con| con.active? }
+      rescue
+        false
       end
     end
   end
