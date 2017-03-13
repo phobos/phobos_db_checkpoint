@@ -170,6 +170,32 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     end
   end
 
+  describe 'GET /v1/failures/count' do
+    let(:now) { Time.parse(Date.today.beginning_of_day.to_s) }
+
+    before do
+      3.times.with_index do |i|
+        PhobosDBCheckpoint::Failure.create do |record|
+          record.topic         = "topic-#{i+1}"
+          record.group_id      = "group_id-#{i+1}"
+          record.entity_id     = "entity_id-#{i+1}"
+          record.event_time    = now + i*3600
+          record.event_type    = "event_type-#{i+1}"
+          record.event_version = "event_version-#{i+1}"
+          record.checksum      = "checksum-#{i+1}"
+          record.payload       = Hash('payload' => 'payload')
+          record.metadata      = Hash('metadata' => 'metadata')
+        end
+      end
+    end
+
+    it 'returns the number of failures' do
+      get '/v1/failures/count'
+      body = JSON.parse(last_response.body)
+      expect(body).to eq({ 'count' => 3 })
+    end
+  end
+
   describe 'GET /v1/failures' do
     let(:now) { Time.parse(Date.today.beginning_of_day.to_s) }
 
