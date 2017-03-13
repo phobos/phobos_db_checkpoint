@@ -102,11 +102,11 @@ module PhobosDBCheckpoint
 
     get "/#{VERSION}/failures/count" do
       content_type :json
-
-      PhobosDBCheckpoint::Failure
+      count = PhobosDBCheckpoint::Failure
         .all
         .count
-        .to_json
+
+      { count: count }.to_json
     end
 
     get "/#{VERSION}/failures/:id" do

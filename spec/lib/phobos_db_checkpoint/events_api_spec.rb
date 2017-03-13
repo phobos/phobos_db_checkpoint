@@ -192,7 +192,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     it 'returns the number of failures' do
       get '/v1/failures/count'
       body = JSON.parse(last_response.body)
-      expect(body).to eq 3
+      expect(body).to eq({ 'count' => 3 })
     end
   end
 
