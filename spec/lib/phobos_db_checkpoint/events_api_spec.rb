@@ -61,57 +61,6 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     end
   end
 
-  describe 'POST /v1/events/:id/retry' do
-    let(:handler) { Phobos::EchoHandler.new }
-    let :ack do
-      PhobosDBCheckpoint::Ack.new(SecureRandom.uuid, Time.now, nil, nil)
-    end
-
-    before do
-      allow(Phobos::EchoHandler).to receive(:new).and_return(handler)
-    end
-
-    it 'calls the configured handler with event payload' do
-      expect(handler)
-        .to receive(:consume)
-        .with(event.payload, hash_including(topic: event.topic, group_id: event.group_id, retry_count: 0))
-        .and_return(ack)
-
-      post "/v1/events/#{event.id}/retry"
-      expect(last_response.body).to eql Hash(acknowledged: true).to_json
-    end
-
-    context 'when handler returns something different than PhobosDBCheckpoint::Ack' do
-      it 'returns acknowledged false' do
-        expect(handler)
-          .to receive(:consume)
-          .and_return('not-ack')
-
-        post "/v1/events/#{event.id}/retry"
-        expect(last_response.body).to eql Hash(acknowledged: false).to_json
-      end
-    end
-
-    context 'when handler is not configured anymore' do
-      it 'returns 422' do
-        event.group_id = 'another-group'
-        event.save
-
-        post "/v1/events/#{event.id}/retry"
-        expect(last_response.status).to eql 422
-        expect(last_response.body).to eql Hash(error: true, message: "Phobos Listener not found for group id 'another-group'").to_json
-      end
-    end
-
-    context 'when the event does not exist' do
-      it 'returns 404' do
-        post "/v1/events/not-found/retry"
-        expect(last_response.status).to eql 404
-        expect(last_response.body).to eql Hash(error: true, message: 'event not found').to_json
-      end
-    end
-  end
-
   describe 'GET /v1/events' do
     before do
       event.delete

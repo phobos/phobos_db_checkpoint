@@ -39,30 +39,6 @@ module PhobosDBCheckpoint
         .to_json
     end
 
-    post "/#{VERSION}/events/:id/retry" do
-      content_type :json
-      event = PhobosDBCheckpoint::Event.find(params['id'])
-      metadata = {
-        listener_id: 'events_api/retry',
-        group_id: event.group_id,
-        topic: event.topic,
-        retry_count: 0
-      }
-
-      event_action =
-        begin
-          event
-            .configured_handler
-            .new
-            .consume(event.payload, metadata)
-        rescue ListenerNotFoundError => e
-          status 422
-          return { error: true, message: e.message }.to_json
-        end
-
-      { acknowledged: event_action.is_a?(PhobosDBCheckpoint::Ack) }.to_json
-    end
-
     get "/#{VERSION}/events" do
       content_type :json
       limit = (params['limit'] || 20).to_i
