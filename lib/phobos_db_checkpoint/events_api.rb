@@ -10,22 +10,27 @@ module PhobosDBCheckpoint
     VERSION = :v1
     set :logging, nil
 
+    configure do
+      set(:raise_errors, false)
+    end
+
     not_found do
       content_type :json
       { error: true, message: 'not found' }.to_json
     end
 
-    error ActiveRecord::RecordNotFound do
+    error do
       content_type :json
-      status 404
-      type = env['sinatra.route'].match(/\/.+\/(.+)\/:/)[1].chop
-      { error: true, message: "#{type} not found" }.to_json
-    end
-
-    error StandardError do
-      content_type :json
-      error = env['sinatra.error']
-      { error: true, message: error.message }.to_json
+      exception = env['sinatra.error']
+      case exception
+      when ActiveRecord::RecordNotFound
+        status 404
+        type = env['sinatra.route'].match(/\/.+\/(.+)\/:/)[1].chop
+        { error: true, message: "#{type} not found" }.to_json
+      else
+        status 500
+        { error: true, message: exception.message }.to_json
+      end
     end
 
     get '/ping' do
@@ -37,30 +42,6 @@ module PhobosDBCheckpoint
       PhobosDBCheckpoint::Event
         .find(params['id'])
         .to_json
-    end
-
-    post "/#{VERSION}/events/:id/retry" do
-      content_type :json
-      event = PhobosDBCheckpoint::Event.find(params['id'])
-      metadata = {
-        listener_id: 'events_api/retry',
-        group_id: event.group_id,
-        topic: event.topic,
-        retry_count: 0
-      }
-
-      event_action =
-        begin
-          event
-            .configured_handler
-            .new
-            .consume(event.payload, metadata)
-        rescue ListenerNotFoundError => e
-          status 422
-          return { error: true, message: e.message }.to_json
-        end
-
-      { acknowledged: event_action.is_a?(PhobosDBCheckpoint::Ack) }.to_json
     end
 
     get "/#{VERSION}/events" do
