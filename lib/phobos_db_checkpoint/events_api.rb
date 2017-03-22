@@ -10,6 +10,10 @@ module PhobosDBCheckpoint
     VERSION = :v1
     set :logging, nil
 
+    configure do
+      set(:raise_errors, false)
+    end
+
     not_found do
       content_type :json
       { error: true, message: 'not found' }.to_json
