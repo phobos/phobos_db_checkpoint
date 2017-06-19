@@ -40,7 +40,7 @@ module PhobosDBCheckpoint
 
     def load_db_config(pool_size: nil)
       @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
-      configs = YAML.load_file(File.expand_path(@db_config_path))
+      configs = YAML.load(ERB.new(File.read(File.expand_path(@db_config_path))).result)
       @db_config = configs[env]
 
       if pool_size.nil? && Phobos.config
