@@ -58,6 +58,24 @@ RSpec.describe PhobosDBCheckpoint do
       PhobosDBCheckpoint.load_db_config(pool_size: 3)
       expect(PhobosDBCheckpoint.db_config['pool']).to eql 3
     end
+
+    context 'when using erb syntax in configuration file' do
+      before do
+        @previous_conf = PhobosDBCheckpoint.instance_variable_get(:@db_config)
+        @previous_path = PhobosDBCheckpoint.instance_variable_get(:@db_config_path)
+        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, 'spec/fixtures/database.yml.erb')
+      end
+
+      after do
+        PhobosDBCheckpoint.instance_variable_set(:@db_config, @previous_conf)
+        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, @previous_path)
+      end
+
+      it 'parses it correctly' do
+        PhobosDBCheckpoint.load_db_config
+        expect(PhobosDBCheckpoint.db_config['database']).to eq('InjectedThroughERB')
+      end
+    end
   end
 
   describe '.env' do
