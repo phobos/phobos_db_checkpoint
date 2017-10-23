@@ -47,7 +47,8 @@ RSpec.describe PhobosDBCheckpoint do
         ))
 
       PhobosDBCheckpoint.load_db_config
-      expect(PhobosDBCheckpoint.db_config['pool']).to eql 15
+      # 2 + 1 + 12 + 5 (add 5 extra connections to the 15 from listeners)
+      expect(PhobosDBCheckpoint.db_config['pool']).to eql 20
     end
 
     it 'uses provided pool_size value if any' do
