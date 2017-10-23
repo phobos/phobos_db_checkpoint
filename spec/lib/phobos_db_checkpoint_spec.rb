@@ -16,7 +16,7 @@ RSpec.describe PhobosDBCheckpoint do
   end
 
   describe '.load_db_config' do
-    after do
+    after(:each) do
       PhobosDBCheckpoint.db_config_path = 'spec/database.test.yml'
       PhobosDBCheckpoint.load_db_config
     end
@@ -28,6 +28,9 @@ RSpec.describe PhobosDBCheckpoint do
     end
 
     it 'sets default pool size to 5' do
+      allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
+          listeners: []
+      ))
       PhobosDBCheckpoint.db_config_path = 'spec/database_without_pool.test.yml'
       PhobosDBCheckpoint.load_db_config
 

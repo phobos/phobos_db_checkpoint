@@ -82,7 +82,7 @@ module PhobosDBCheckpoint
     end
 
     def number_of_concurrent_listeners
-      Phobos.config.listeners.map { |listener| listener.max_concurrency || 1 }.inject(&:+)
+      Phobos.config.listeners.map { |listener| listener.max_concurrency || 1 }.inject(&:+) || 0
     end
   end
 end
