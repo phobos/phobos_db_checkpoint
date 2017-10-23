@@ -4,8 +4,7 @@ module PhobosDBCheckpoint
 
       def initialize(app, options = {})
         @app = app
-        pool_size = options.fetch(:pool_size, PhobosDBCheckpoint::DEFAULT_POOL_SIZE)
-        PhobosDBCheckpoint.configure(pool_size: pool_size)
+        PhobosDBCheckpoint.configure
       end
 
       def call(request_env)

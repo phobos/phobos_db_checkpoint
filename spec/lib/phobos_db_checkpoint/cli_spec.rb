@@ -76,7 +76,7 @@ RSpec.describe PhobosDBCheckpoint::CLI do
 
     describe 'when running stand alone', standalone: true do
       it 'connects to the database' do
-        expect(PhobosDBCheckpoint).to receive(:configure).with(pool_size: 1).at_least(:once)
+        expect(PhobosDBCheckpoint).to receive(:configure).at_least(:once)
         invoke_cmd
       end
 

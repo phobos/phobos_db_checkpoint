@@ -44,7 +44,7 @@ module PhobosDBCheckpoint
         end
 
         unless active_connection?
-          PhobosDBCheckpoint.configure(pool_size: 1)
+          PhobosDBCheckpoint.configure
         end
 
         destination_fullpath = File.join(destination_root, options[:destination])

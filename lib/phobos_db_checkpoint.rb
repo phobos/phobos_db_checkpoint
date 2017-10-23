@@ -28,9 +28,10 @@ module PhobosDBCheckpoint
       :phobos_db_checkpoint_
     end
 
-    def configure(pool_size: nil)
-      @verbose && puts("PhobosDBCheckpoint#configure - pool_size = #{pool_size}")
-      load_db_config(pool_size: pool_size)
+    def configure(options = {})
+      puts "WARNING: PhobosDBCheckpoint.configure - pool_size option is deprecated, use database.yml instead" if options.has_key?(:pool_size)
+      @verbose && puts("PhobosDBCheckpoint#configure")
+      load_db_config
       at_exit { PhobosDBCheckpoint.close_db_connection }
       PhobosDBCheckpoint.establish_db_connection
     end
@@ -39,14 +40,17 @@ module PhobosDBCheckpoint
       ENV['RAILS_ENV'] ||= ENV['RACK_ENV'] ||= 'development'
     end
 
-    def load_db_config(pool_size: nil)
-      @verbose && puts("PhobosDBCheckpoint#load_db_config - pool_size = #{pool_size}")
+    def load_db_config(options = {})
+      puts "WARNING: PhobosDBCheckpoint.load_db_config - pool_size option is deprecated, use database.yml instead" if options.has_key?(:pool_size)
+      @verbose && puts("PhobosDBCheckpoint#load_db_config")
 
       @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
       @verbose && puts("PhobosDBCheckpoint#load_db_config - db_config_path = #{@db_config_path}, env = #{env}")
 
       configs = YAML.load(ERB.new(File.read(File.expand_path(@db_config_path))).result)
       @db_config = configs[env]
+
+      pool_size = @db_config['pool']
 
       if pool_size.nil? && Phobos.config
         pool_size = number_of_concurrent_listeners + DEFAULT_POOL_SIZE

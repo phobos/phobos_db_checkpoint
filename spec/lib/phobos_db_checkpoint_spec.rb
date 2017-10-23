@@ -13,19 +13,6 @@ RSpec.describe PhobosDBCheckpoint do
 
       PhobosDBCheckpoint.configure
     end
-
-    it 'uses provided pool_size if any' do
-      expect(PhobosDBCheckpoint)
-        .to receive(:load_db_config)
-        .with(pool_size: 3)
-        .and_call_original
-
-      expect(ActiveRecord::Base)
-        .to receive(:establish_connection)
-        .with(hash_including('pool' => 3))
-
-      PhobosDBCheckpoint.configure(pool_size: 3)
-    end
   end
 
   describe '.load_db_config' do
@@ -33,6 +20,7 @@ RSpec.describe PhobosDBCheckpoint do
       PhobosDBCheckpoint.load_db_config
       expect(PhobosDBCheckpoint.db_config).to_not be_nil
       expect(PhobosDBCheckpoint.db_config).to include('database' => 'phobos-db-checkpoint-test')
+      PhobosDBCheckpoint.db_config.delete('pool')
     end
 
     it 'configure pool size based on max_concurrency' do
@@ -49,15 +37,6 @@ RSpec.describe PhobosDBCheckpoint do
       PhobosDBCheckpoint.load_db_config
       # 2 + 1 + 12 + 5 (add 5 extra connections to the 15 from listeners)
       expect(PhobosDBCheckpoint.db_config['pool']).to eql 20
-    end
-
-    it 'uses provided pool_size value if any' do
-      allow(Phobos)
-        .to receive(:config)
-        .and_return(Phobos::DeepStruct.new)
-
-      PhobosDBCheckpoint.load_db_config(pool_size: 3)
-      expect(PhobosDBCheckpoint.db_config['pool']).to eql 3
     end
 
     context 'when using erb syntax in configuration file' do
