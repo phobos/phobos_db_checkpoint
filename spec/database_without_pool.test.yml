@@ -1,0 +1,7 @@
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: phobos-db-checkpoint-test
+  user: postgres
+  host: localhost
+  port: 5432

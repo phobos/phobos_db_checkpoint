@@ -16,11 +16,23 @@ RSpec.describe PhobosDBCheckpoint do
   end
 
   describe '.load_db_config' do
+    after do
+      PhobosDBCheckpoint.db_config_path = 'spec/database.test.yml'
+      PhobosDBCheckpoint.load_db_config
+    end
+
     it 'loads db config for the configured environment' do
       PhobosDBCheckpoint.load_db_config
       expect(PhobosDBCheckpoint.db_config).to_not be_nil
       expect(PhobosDBCheckpoint.db_config).to include('database' => 'phobos-db-checkpoint-test')
-      PhobosDBCheckpoint.db_config.delete('pool')
+    end
+
+    it 'sets default pool size to 5' do
+      PhobosDBCheckpoint.db_config_path = 'spec/database_without_pool.test.yml'
+      PhobosDBCheckpoint.load_db_config
+
+      expect(PhobosDBCheckpoint.db_config).to_not be_nil
+      expect(PhobosDBCheckpoint.db_config).to include('pool' => 5)
     end
 
     it 'configure pool size based on max_concurrency' do
@@ -33,8 +45,9 @@ RSpec.describe PhobosDBCheckpoint do
             { max_concurrency: 12 }
           ]
         ))
-
+      PhobosDBCheckpoint.db_config_path = 'spec/database_without_pool.test.yml'
       PhobosDBCheckpoint.load_db_config
+
       # 2 + 1 + 12 + 5 (add 5 extra connections to the 15 from listeners)
       expect(PhobosDBCheckpoint.db_config['pool']).to eql 20
     end
