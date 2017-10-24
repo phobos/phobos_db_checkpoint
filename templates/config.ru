@@ -8,10 +8,6 @@ logger_config = {
   # log_file: 'log/api.log'
 }
 
-database_config = {
-  # pool_size: PhobosDBCheckpoint::DEFAULT_POOL_SIZE # 5
-}
-
 use PhobosDBCheckpoint::Middleware::Logger, logger_config
-use PhobosDBCheckpoint::Middleware::Database, database_config
+use PhobosDBCheckpoint::Middleware::Database
 run PhobosDBCheckpoint::EventsAPI

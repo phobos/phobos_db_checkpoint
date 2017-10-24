@@ -29,4 +29,16 @@ describe PhobosDBCheckpoint::Middleware::Database, type: :db do
     expect(ActiveRecord::Base).to receive(:clear_active_connections!)
     subject.call(request_env)
   end
+
+  it 'does not emit a deprecation warning' do
+    expect {
+      PhobosDBCheckpoint::Middleware::Database.new(app)
+    }.to_not output.to_stderr
+  end
+
+  it 'emits a deprecation warning if using any option' do
+    expect {
+      PhobosDBCheckpoint::Middleware::Database.new(app, { foo: :bar })
+    }.to output(/\[DEPRECATION\] options are deprecated, use configuration files instead/).to_stderr
+  end
 end

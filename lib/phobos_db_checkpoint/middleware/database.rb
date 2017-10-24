@@ -1,9 +1,9 @@
 module PhobosDBCheckpoint
   module Middleware
     class Database
-
       def initialize(app, options = {})
         @app = app
+        warn Kernel.caller.first + "[DEPRECATION] options are deprecated, use configuration files instead" if options.keys.any?
         PhobosDBCheckpoint.configure
       end
 

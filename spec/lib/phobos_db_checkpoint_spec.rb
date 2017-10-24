@@ -13,6 +13,18 @@ RSpec.describe PhobosDBCheckpoint do
 
       PhobosDBCheckpoint.configure
     end
+
+    it 'does not emit a deprecation warning' do
+      expect {
+        PhobosDBCheckpoint.configure
+      }.to_not output.to_stderr
+    end
+
+    it 'emits a deprecation warning if using any option' do
+      expect {
+        PhobosDBCheckpoint.configure(foo: :bar)
+      }.to output(/\[DEPRECATION\] options are deprecated, use configuration files instead/).to_stderr
+    end
   end
 
   describe '.load_db_config' do
@@ -53,6 +65,18 @@ RSpec.describe PhobosDBCheckpoint do
 
       # 2 + 1 + 12 + 5 (add 5 extra connections to the 15 from listeners)
       expect(PhobosDBCheckpoint.db_config['pool']).to eql 20
+    end
+
+    it 'does not emit a deprecation warning' do
+      expect {
+        PhobosDBCheckpoint.load_db_config
+      }.to_not output.to_stderr
+    end
+
+    it 'emits a deprecation warning if using any option' do
+      expect {
+        PhobosDBCheckpoint.load_db_config(foo: :bar)
+      }.to output(/\[DEPRECATION\] options are deprecated, use configuration files instead/).to_stderr
     end
 
     context 'when using erb syntax in configuration file' do
