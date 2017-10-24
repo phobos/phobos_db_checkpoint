@@ -14,11 +14,6 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
   let(:failure) { PhobosDBCheckpoint::Failure.record(attributes_for_create) }
   subject { described_class.new(failure) }
 
-  before do
-    Phobos.silence_log = true
-    Phobos.configure('spec/phobos.test.yml')
-  end
-
   describe '#perform' do
     let(:handler_class) { double(:handler_class) }
     let(:handler_instance) { double(:handler_instance) }
@@ -42,8 +37,6 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
     context 'when consume is successful' do
       let(:event_metadata) { Hash(metadata: 'metadata', group_id: 'test-checkpoint') }
       before do
-        Phobos.silence_log = true
-        Phobos.configure('spec/phobos.test.yml')
         failure
       end
 

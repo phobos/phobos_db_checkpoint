@@ -2,13 +2,6 @@ require 'spec_helper'
 require 'phobos_db_checkpoint/tasks'
 
 RSpec.describe PhobosDBCheckpoint::Tasks do
-  before do
-    allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
-      listeners: []
-    ))
-    PhobosDBCheckpoint.configure
-  end
-
   it 'loads db tasks' do
     expect(Rake.application.tasks.map(&:name))
       .to include *%w(
@@ -35,8 +28,7 @@ RSpec.describe PhobosDBCheckpoint::Tasks do
     it 'configures ActiveRecord::Tasks::DatabaseTasks.database_configuration' do
       Rake.application['db:load_config'].invoke
       expect(ActiveRecord::Tasks::DatabaseTasks.database_configuration)
-        .to eql('test' => PhobosDBCheckpoint.db_config)
+        .to eql('test' => PhobosDBCheckpoint.db_config.merge('pool' => 5))
     end
   end
-
 end

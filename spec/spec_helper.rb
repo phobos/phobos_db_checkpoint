@@ -51,6 +51,8 @@ raise "Copy migrations command failed\n#{result}" unless $?.success?
 Rake.application['db:create'].invoke
 Rake.application['db:migrate'].invoke
 
+Phobos.silence_log = true
+Phobos.configure('spec/phobos.test.yml')
 PhobosDBCheckpoint.configure
 DatabaseCleaner.strategy = :truncation
 DatabaseCleaner::ActiveRecord.config_file_location = PhobosDBCheckpoint.db_config

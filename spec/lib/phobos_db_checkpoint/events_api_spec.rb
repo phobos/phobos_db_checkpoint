@@ -34,11 +34,6 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
   let!(:event) { create_event }
 
-  before do
-    Phobos.silence_log = true
-    Phobos.configure('spec/phobos.test.yml')
-  end
-
   describe 'GET /ping' do
     it 'returns pong' do
       get '/ping'

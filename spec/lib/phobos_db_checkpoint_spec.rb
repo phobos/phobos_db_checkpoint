@@ -36,14 +36,13 @@ RSpec.describe PhobosDBCheckpoint do
 
     context 'when using configuration with pool size' do
       before do
-        @previous_conf = PhobosDBCheckpoint.instance_variable_get(:@db_config)
-        @previous_path = PhobosDBCheckpoint.instance_variable_get(:@db_config_path)
-        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, 'spec/database_with_pool.test.yml')
+        @previous_path = PhobosDBCheckpoint.db_config_path
+        PhobosDBCheckpoint.db_config_path = 'spec/database_with_pool.test.yml'
       end
 
       after do
-        PhobosDBCheckpoint.instance_variable_set(:@db_config, @previous_conf)
-        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, @previous_path)
+        PhobosDBCheckpoint.db_config_path = @previous_path
+        PhobosDBCheckpoint.load_db_config
       end
 
       it 'uses pool size from configuration' do
@@ -87,14 +86,13 @@ RSpec.describe PhobosDBCheckpoint do
 
     context 'when using erb syntax in configuration file' do
       before do
-        @previous_conf = PhobosDBCheckpoint.instance_variable_get(:@db_config)
-        @previous_path = PhobosDBCheckpoint.instance_variable_get(:@db_config_path)
-        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, 'spec/fixtures/database.yml.erb')
+        @previous_path = PhobosDBCheckpoint.db_config_path
+        PhobosDBCheckpoint.db_config_path = 'spec/fixtures/database.yml.erb'
       end
 
       after do
-        PhobosDBCheckpoint.instance_variable_set(:@db_config, @previous_conf)
-        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, @previous_path)
+        PhobosDBCheckpoint.db_config_path = @previous_path
+        PhobosDBCheckpoint.load_db_config
       end
 
       it 'parses it correctly' do

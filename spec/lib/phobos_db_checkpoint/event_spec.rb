@@ -44,11 +44,6 @@ describe PhobosDBCheckpoint::Event, type: :db do
   end
 
   describe '#configured_handler' do
-    before do
-      Phobos.silence_log = true
-      Phobos.configure('spec/phobos.test.yml')
-    end
-
     it 'returns the name of the configured handler for this event' do
       event = PhobosDBCheckpoint::Event.new(group_id: 'test-checkpoint')
       expect(event.configured_handler).to eql Phobos::EchoHandler

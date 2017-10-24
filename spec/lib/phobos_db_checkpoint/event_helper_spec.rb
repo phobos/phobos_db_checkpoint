@@ -16,11 +16,6 @@ RSpec.describe PhobosDBCheckpoint::EventHelper, type: :db do
     end
   end
 
-  before do
-    Phobos.silence_log = true
-    Phobos.configure('spec/phobos.test.yml')
-  end
-
   describe '#configured_listener' do
     context 'when group id is not found in Phobos configuration' do
       let(:group_id) { 'check-testpoint' }
