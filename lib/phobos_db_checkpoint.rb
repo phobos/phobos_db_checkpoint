@@ -28,26 +28,37 @@ module PhobosDBCheckpoint
       :phobos_db_checkpoint_
     end
 
-    def configure(pool_size: nil)
-      load_db_config(pool_size: pool_size)
+    def configure(options = {})
+      deprecate('options are deprecated, use configuration files instead') if options.keys.any?
+
+      load_db_config
       at_exit { PhobosDBCheckpoint.close_db_connection }
-      ActiveRecord::Base.establish_connection(db_config)
+      PhobosDBCheckpoint.establish_db_connection
     end
 
     def env
       ENV['RAILS_ENV'] ||= ENV['RACK_ENV'] ||= 'development'
     end
 
-    def load_db_config(pool_size: nil)
+    def load_db_config(options = {})
+      deprecate('options are deprecated, use configuration files instead') if options.keys.any?
+
       @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
+
       configs = YAML.load(ERB.new(File.read(File.expand_path(@db_config_path))).result)
       @db_config = configs[env]
 
+      pool_size = @db_config['pool']
+
       if pool_size.nil? && Phobos.config
-        pool_size = Phobos.config.listeners.map { |listener| listener.max_concurrency || 1 }.inject(&:+)
+        pool_size = number_of_concurrent_listeners + DEFAULT_POOL_SIZE
       end
 
       @db_config.merge!('pool' => pool_size || DEFAULT_POOL_SIZE)
+    end
+
+    def establish_db_connection
+      ActiveRecord::Base.establish_connection(db_config)
     end
 
     def close_db_connection
@@ -58,10 +69,19 @@ module PhobosDBCheckpoint
     def load_tasks
       @db_dir ||= DEFAULT_DB_DIR
       @migration_path ||= DEFAULT_MIGRATION_PATH
+
       ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :db_dir) { PhobosDBCheckpoint.db_dir }
       ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :migrations_paths) { [PhobosDBCheckpoint.migration_path] }
       ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :env) { PhobosDBCheckpoint.env }
       require 'phobos_db_checkpoint/tasks'
+    end
+
+    def number_of_concurrent_listeners
+      Phobos.config.listeners.map { |listener| listener.max_concurrency || 1 }.inject(&:+) || 0
+    end
+
+    def deprecate(message)
+      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
     end
   end
 end

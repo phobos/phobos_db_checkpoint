@@ -1,11 +1,10 @@
 module PhobosDBCheckpoint
   module Middleware
     class Database
-
       def initialize(app, options = {})
         @app = app
-        pool_size = options.fetch(:pool_size, PhobosDBCheckpoint::DEFAULT_POOL_SIZE)
-        PhobosDBCheckpoint.configure(pool_size: pool_size)
+        PhobosDBCheckpoint.deprecate('options are deprecated, use configuration files instead') if options.keys.any?
+        PhobosDBCheckpoint.configure
       end
 
       def call(request_env)

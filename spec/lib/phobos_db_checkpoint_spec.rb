@@ -14,17 +14,16 @@ RSpec.describe PhobosDBCheckpoint do
       PhobosDBCheckpoint.configure
     end
 
-    it 'uses provided pool_size if any' do
-      expect(PhobosDBCheckpoint)
-        .to receive(:load_db_config)
-        .with(pool_size: 3)
-        .and_call_original
+    it 'does not emit a deprecation warning' do
+      expect {
+        PhobosDBCheckpoint.configure
+      }.to_not output.to_stderr
+    end
 
-      expect(ActiveRecord::Base)
-        .to receive(:establish_connection)
-        .with(hash_including('pool' => 3))
-
-      PhobosDBCheckpoint.configure(pool_size: 3)
+    it 'emits a deprecation warning if using any option' do
+      expect {
+        PhobosDBCheckpoint.configure(foo: :bar)
+      }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
     end
   end
 
@@ -35,7 +34,29 @@ RSpec.describe PhobosDBCheckpoint do
       expect(PhobosDBCheckpoint.db_config).to include('database' => 'phobos-db-checkpoint-test')
     end
 
-    it 'configure pool size based on max_concurrency' do
+    context 'when using configuration with pool size' do
+      before do
+        @previous_path = PhobosDBCheckpoint.db_config_path
+        PhobosDBCheckpoint.db_config_path = 'spec/database_with_pool.test.yml'
+      end
+
+      after do
+        PhobosDBCheckpoint.db_config_path = @previous_path
+        PhobosDBCheckpoint.load_db_config
+      end
+
+      it 'uses pool size from configuration' do
+        allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
+          listeners: []
+        ))
+        PhobosDBCheckpoint.load_db_config
+
+        expect(PhobosDBCheckpoint.db_config).to_not be_nil
+        expect(PhobosDBCheckpoint.db_config).to include('pool' => 12)
+      end
+    end
+
+    it 'configures pool size based on the sum of max_concurrency for all listeners' do
       allow(Phobos)
         .to receive(:config)
         .and_return(Phobos::DeepStruct.new(
@@ -45,30 +66,33 @@ RSpec.describe PhobosDBCheckpoint do
             { max_concurrency: 12 }
           ]
         ))
-
       PhobosDBCheckpoint.load_db_config
-      expect(PhobosDBCheckpoint.db_config['pool']).to eql 15
+
+      # 2 + 1 + 12 + 5 (add 5 extra connections to the 15 from listeners)
+      expect(PhobosDBCheckpoint.db_config['pool']).to eql 20
     end
 
-    it 'uses provided pool_size value if any' do
-      allow(Phobos)
-        .to receive(:config)
-        .and_return(Phobos::DeepStruct.new)
+    it 'does not emit a deprecation warning' do
+      expect {
+        PhobosDBCheckpoint.load_db_config
+      }.to_not output.to_stderr
+    end
 
-      PhobosDBCheckpoint.load_db_config(pool_size: 3)
-      expect(PhobosDBCheckpoint.db_config['pool']).to eql 3
+    it 'emits a deprecation warning if using any option' do
+      expect {
+        PhobosDBCheckpoint.load_db_config(foo: :bar)
+      }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
     end
 
     context 'when using erb syntax in configuration file' do
       before do
-        @previous_conf = PhobosDBCheckpoint.instance_variable_get(:@db_config)
-        @previous_path = PhobosDBCheckpoint.instance_variable_get(:@db_config_path)
-        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, 'spec/fixtures/database.yml.erb')
+        @previous_path = PhobosDBCheckpoint.db_config_path
+        PhobosDBCheckpoint.db_config_path = 'spec/fixtures/database.yml.erb'
       end
 
       after do
-        PhobosDBCheckpoint.instance_variable_set(:@db_config, @previous_conf)
-        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, @previous_path)
+        PhobosDBCheckpoint.db_config_path = @previous_path
+        PhobosDBCheckpoint.load_db_config
       end
 
       it 'parses it correctly' do

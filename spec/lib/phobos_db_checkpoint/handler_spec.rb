@@ -182,11 +182,6 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
     subject { TestPhobosDbCheckpointHandler }
 
     context 'when Phobos config specifies max_retries' do
-      before do
-        Phobos.silence_log = true
-        Phobos.configure('spec/phobos.test.yml')
-      end
-
       it 'will retry while retry count is less than configured max_retries' do
         expect(subject.retry_consume?('foo', { retry_count: 0 }, 'bar')).to be_truthy
         expect(subject.retry_consume?('foo', { retry_count: 1 }, 'bar')).to be_truthy
@@ -229,11 +224,6 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
   end
 
   describe '.around_consume' do
-    before do
-      Phobos.silence_log = true
-      Phobos.configure('spec/phobos.test.yml')
-    end
-
     let(:event_payload) { Hash(payload: 'payload') }
     let(:event_metadata) { Hash(metadata: 'metadata', retry_count: 0) }
     subject { TestPhobosDbCheckpointHandler }

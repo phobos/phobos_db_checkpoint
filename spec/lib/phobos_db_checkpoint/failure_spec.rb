@@ -14,11 +14,6 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   let(:attributes_for_create) { Hash(event: event, event_metadata: event_metadata) }
   subject { described_class.record(attributes_for_create).reload }
 
-  before do
-    Phobos.silence_log = true
-    Phobos.configure('spec/phobos.test.yml')
-  end
-
   describe '.record' do
     it 'creates a failure record' do
       expect {
