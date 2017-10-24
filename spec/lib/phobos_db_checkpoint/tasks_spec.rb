@@ -2,6 +2,12 @@ require 'spec_helper'
 require 'phobos_db_checkpoint/tasks'
 
 RSpec.describe PhobosDBCheckpoint::Tasks do
+  before do
+    allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
+      listeners: []
+    ))
+    PhobosDBCheckpoint.configure
+  end
 
   it 'loads db tasks' do
     expect(Rake.application.tasks.map(&:name))

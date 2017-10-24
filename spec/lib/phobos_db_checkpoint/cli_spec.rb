@@ -79,7 +79,6 @@ RSpec.describe PhobosDBCheckpoint::CLI do
         expect(PhobosDBCheckpoint).to receive(:configure).at_least(:once)
         invoke_cmd
       end
-
     end
 
     context 'when templating fails' do
