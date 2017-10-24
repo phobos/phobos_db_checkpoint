@@ -28,29 +28,36 @@ RSpec.describe PhobosDBCheckpoint do
   end
 
   describe '.load_db_config' do
-    after(:each) do
-      PhobosDBCheckpoint.db_config_path = 'spec/database.test.yml'
-      PhobosDBCheckpoint.load_db_config
-    end
-
     it 'loads db config for the configured environment' do
       PhobosDBCheckpoint.load_db_config
       expect(PhobosDBCheckpoint.db_config).to_not be_nil
       expect(PhobosDBCheckpoint.db_config).to include('database' => 'phobos-db-checkpoint-test')
     end
 
-    it 'sets default pool size to 5' do
-      allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
-          listeners: []
-      ))
-      PhobosDBCheckpoint.db_config_path = 'spec/database_without_pool.test.yml'
-      PhobosDBCheckpoint.load_db_config
+    context 'when using configuration with pool size' do
+      before do
+        @previous_conf = PhobosDBCheckpoint.instance_variable_get(:@db_config)
+        @previous_path = PhobosDBCheckpoint.instance_variable_get(:@db_config_path)
+        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, 'spec/database_with_pool.test.yml')
+      end
 
-      expect(PhobosDBCheckpoint.db_config).to_not be_nil
-      expect(PhobosDBCheckpoint.db_config).to include('pool' => 5)
+      after do
+        PhobosDBCheckpoint.instance_variable_set(:@db_config, @previous_conf)
+        PhobosDBCheckpoint.instance_variable_set(:@db_config_path, @previous_path)
+      end
+
+      it 'uses pool size from configuration' do
+        allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
+          listeners: []
+        ))
+        PhobosDBCheckpoint.load_db_config
+
+        expect(PhobosDBCheckpoint.db_config).to_not be_nil
+        expect(PhobosDBCheckpoint.db_config).to include('pool' => 12)
+      end
     end
 
-    it 'configure pool size based on max_concurrency' do
+    it 'configures pool size based on the sum of max_concurrency for all listeners' do
       allow(Phobos)
         .to receive(:config)
         .and_return(Phobos::DeepStruct.new(
@@ -60,7 +67,6 @@ RSpec.describe PhobosDBCheckpoint do
             { max_concurrency: 12 }
           ]
         ))
-      PhobosDBCheckpoint.db_config_path = 'spec/database_without_pool.test.yml'
       PhobosDBCheckpoint.load_db_config
 
       # 2 + 1 + 12 + 5 (add 5 extra connections to the 15 from listeners)
