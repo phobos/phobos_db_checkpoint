@@ -39,6 +39,6 @@ describe PhobosDBCheckpoint::Middleware::Database, type: :db do
   it 'emits a deprecation warning if using any option' do
     expect {
       PhobosDBCheckpoint::Middleware::Database.new(app, { foo: :bar })
-    }.to output(/\[DEPRECATION\] options are deprecated, use configuration files instead/).to_stderr
+    }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
   end
 end

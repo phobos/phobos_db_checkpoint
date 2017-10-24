@@ -23,7 +23,7 @@ RSpec.describe PhobosDBCheckpoint do
     it 'emits a deprecation warning if using any option' do
       expect {
         PhobosDBCheckpoint.configure(foo: :bar)
-      }.to output(/\[DEPRECATION\] options are deprecated, use configuration files instead/).to_stderr
+      }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
     end
   end
 
@@ -82,7 +82,7 @@ RSpec.describe PhobosDBCheckpoint do
     it 'emits a deprecation warning if using any option' do
       expect {
         PhobosDBCheckpoint.load_db_config(foo: :bar)
-      }.to output(/\[DEPRECATION\] options are deprecated, use configuration files instead/).to_stderr
+      }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
     end
 
     context 'when using erb syntax in configuration file' do

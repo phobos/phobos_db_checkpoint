@@ -29,7 +29,7 @@ module PhobosDBCheckpoint
     end
 
     def configure(options = {})
-      warn Kernel.caller.first + "[DEPRECATION] options are deprecated, use configuration files instead" if options.keys.any?
+      deprecate('options are deprecated, use configuration files instead') if options.keys.any?
       @verbose && puts("PhobosDBCheckpoint#configure")
       load_db_config
       at_exit { PhobosDBCheckpoint.close_db_connection }
@@ -41,7 +41,7 @@ module PhobosDBCheckpoint
     end
 
     def load_db_config(options = {})
-      warn Kernel.caller.first + "[DEPRECATION] options are deprecated, use configuration files instead" if options.keys.any?
+      deprecate('options are deprecated, use configuration files instead') if options.keys.any?
       @verbose && puts("PhobosDBCheckpoint#load_db_config")
 
       @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
@@ -83,6 +83,10 @@ module PhobosDBCheckpoint
 
     def number_of_concurrent_listeners
       Phobos.config.listeners.map { |listener| listener.max_concurrency || 1 }.inject(&:+) || 0
+    end
+
+    def deprecate(message)
+      warn "DEPRECATION WARNING: #{message} #{Kernel.caller.first}"
     end
   end
 end
