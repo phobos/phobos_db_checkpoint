@@ -141,7 +141,7 @@ class MyHandler
     # <-- consume your stuff with the decoded payload
   end
 end
-```  
+```
 
 #### <a name="failures"></a> Failures
 
