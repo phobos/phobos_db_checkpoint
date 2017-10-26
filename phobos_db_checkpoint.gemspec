@@ -56,6 +56,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'thor'
   spec.add_dependency 'rake'
   spec.add_dependency 'activerecord', '>= 4.0.0'
-  spec.add_dependency 'phobos', '>= 1.0.0'
+  spec.add_dependency 'phobos', '>= 1.5.0'
   spec.add_dependency 'sinatra'
 end

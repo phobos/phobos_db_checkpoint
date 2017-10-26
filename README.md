@@ -14,6 +14,7 @@ Phobos DB Checkpoint is a plugin to [Phobos](https://github.com/klarna/phobos) a
 1. [Usage](#usage)
   1. [Setup](#setup)
   1. [Handler](#handler)
+    1. [Payload](#payload)
     1. [Failures](#failures)
   1. [Accessing the events](#accessing-the-events)
   1. [Events API](#events-api)
@@ -120,6 +121,27 @@ end
 If your handler returns anything different than an __ack__ it won't be saved to the database.
 
 Note that the `PhobosDBCheckpoint::Handler` will automatically skip already handled events (i.e. duplicate Kafka messages).
+
+#### <a name="payload"></a> Payload
+PhobosDBCheckpoint assumes that the payload received from Phobos is in a JSON format. This means that if your payload is in any other format, for example Avro binary, you need to convert/decode it to JSON.
+
+To achieve this you can override the `#before_consume` method of the handler:
+
+```ruby
+class MyHandler
+  include PhobosDBCheckpoint::Handler
+
+  # <-- setup @avro before
+
+  def before_consume(payload)
+    @avro.decode(payload)
+  end
+
+  def consume(payload, metadata)
+    # <-- consume your stuff with the decoded payload
+  end
+end
+```  
 
 #### <a name="failures"></a> Failures
 
