@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 3.3.0 (2017-10-26)
+
+- [enhancement] Bump Phobos version to 1.5.0 to better support Avro. #34
+
 ## 3.2.0 (2017-10-23)
 
 - [enhancement] Make pool_size only configurable through configuration files
