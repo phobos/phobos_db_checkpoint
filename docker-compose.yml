@@ -1,16 +1,9 @@
 version: '2'
 services:
   test:
-    depends_on:
-      - db
     build:
       context: .
     command: rspec
+    network_mode: host
     volumes:
       - ./coverage:/opt/phobos_db_checkpoint/coverage
-    network_mode: service:db
-
-  db:
-    image: postgres:9.5-alpine
-    ports:
-     - 5432:5432
