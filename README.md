@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/klarna/phobos_db_checkpoint.svg?branch=travis)](https://travis-ci.org/klarna/phobos_db_checkpoint)
+[![Maintainability](https://api.codeclimate.com/v1/badges/6f508f2515a418568bd8/maintainability)](https://codeclimate.com/github/klarna/phobos_db_checkpoint/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/6f508f2515a418568bd8/test_coverage)](https://codeclimate.com/github/klarna/phobos_db_checkpoint/test_coverage)
 [![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
 
 # Phobos DB Checkpoint
