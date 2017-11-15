@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/klarna/phobos_db_checkpoint.svg?branch=travis)](https://travis-ci.org/klarna/phobos_db_checkpoint)
-[![Coverage Status](https://coveralls.io/repos/github/klarna/phobos_db_checkpoint/badge.svg?branch=master)](https://coveralls.io/github/klarna/phobos_db_checkpoint?branch=master)
 [![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
 
 # Phobos DB Checkpoint
