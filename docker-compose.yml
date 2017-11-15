@@ -1,0 +1,9 @@
+version: '2'
+services:
+  test:
+    build:
+      context: .
+    command: rspec
+    network_mode: host
+    volumes:
+      - ./coverage:/opt/phobos_db_checkpoint/coverage

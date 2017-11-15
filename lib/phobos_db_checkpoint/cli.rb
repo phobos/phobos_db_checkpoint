@@ -115,7 +115,7 @@ module PhobosDBCheckpoint
 
       def list_migrations(dir)
         return [] unless Dir.exist?(dir)
-        Dir.entries(dir).select {|f| f =~ /\.rb(\.erb)?$/}
+        Dir.entries(dir).select { |f| f =~ /\.rb(\.erb)?$/ }.sort
       end
 
       def migrations_template_dir

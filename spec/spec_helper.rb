@@ -13,17 +13,8 @@ require 'pry-byebug'
 require 'database_cleaner'
 require 'pg'
 
-require 'coveralls'
-
-# save to CircleCI's artifacts directory if we're on CircleCI
-if ENV['CIRCLE_ARTIFACTS']
-  dir = File.join(ENV['CIRCLE_ARTIFACTS'], "coverage")
-  SimpleCov.coverage_dir(dir)
-end
-
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
-  Coveralls::SimpleCov::Formatter
 ])
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'

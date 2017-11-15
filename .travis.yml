@@ -1,0 +1,33 @@
+sudo: required
+language: ruby
+rvm:
+  - 2.4.1
+
+services:
+  - docker
+
+env:
+  global:
+    - CC_TEST_REPORTER_ID=09c6fe3d9f5f4673b7172b7ff0bd9721b5969da49c6c46e976fb89cf83f2a0dd
+
+before_install:
+  - env
+  - docker-compose --version
+  - docker --version
+  - docker-compose config
+  - docker-compose build test
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter before-build || echo "Skipping CC coverage before-build"; fi
+  - mkdir coverage/
+  - touch ./coverage/.resultset.json
+
+script:
+  - docker-compose run --rm test rspec
+
+after_script:
+  - cat ./coverage/.resultset.json | sed "s|/opt/phobos_db_checkpoint|$PWD|" > ./coverage/.newresultset.json
+  - cp ./coverage/.newresultset.json ./coverage/.resultset.json
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT || echo "Skipping CC coverage after-build"; fi
