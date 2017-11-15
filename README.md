@@ -1,4 +1,4 @@
-![CircleCI](https://circleci.com/gh/klarna/phobos_db_checkpoint/tree/master.svg?style=shield&circle-token=a69fda09f130a862b69f6a7e8be834f884829ccd)
+[![Build Status](https://travis-ci.org/klarna/phobos_db_checkpoint.svg?branch=travis)](https://travis-ci.org/klarna/phobos_db_checkpoint)
 [![Coverage Status](https://coveralls.io/repos/github/klarna/phobos_db_checkpoint/badge.svg?branch=master)](https://coveralls.io/github/klarna/phobos_db_checkpoint?branch=master)
 [![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
 
