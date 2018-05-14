@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PhobosDBCheckpoint
   module Handler
     include Phobos::Handler
@@ -14,7 +16,7 @@ module PhobosDBCheckpoint
       include Phobos::Instrumentation
       include Phobos::Handler::ClassMethods
 
-      def retry_consume?(event, event_metadata, exception)
+      def retry_consume?(_event, event_metadata, _exception)
         return true unless Phobos.config&.db_checkpoint&.max_retries
         event_metadata[:retry_count] < Phobos.config&.db_checkpoint&.max_retries
       end
@@ -38,7 +40,7 @@ module PhobosDBCheckpoint
           event_action = instrument('db_checkpoint.event_action', event_metadata) do
             begin
               yield
-            rescue => e
+            rescue StandardError => e
               if retry_consume?(event, event_metadata, e)
                 raise e
               else

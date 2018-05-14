@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 module PhobosDBCheckpoint
   module EventHelper
     def configured_listener
       listener = Phobos
-        .config
-        .listeners
-        .find { |l| l.group_id == self.group_id }
+                 .config
+                 .listeners
+                 .find { |l| l.group_id == group_id }
 
-      raise(ListenerNotFoundError, self.group_id) unless listener
+      raise(ListenerNotFoundError, group_id) unless listener
 
       listener
     end

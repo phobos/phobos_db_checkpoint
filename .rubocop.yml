@@ -1,0 +1,20 @@
+###########################
+# Configuration for rubocop
+# in .rubocop.yml
+
+##############
+# Global rules
+# see .rubocop_common.yml
+
+##############
+# Inherit default rules first, and then override those rules with
+# our violation whitelist.
+inherit_from:
+  - .rubocop_common.yml
+  - .rubocop_todo.yml
+
+##############
+# Project specific overrides here, example:
+# Metrics/BlockLength:
+#   Exclude:
+#    - 'tasks/the_huge_task.rake'

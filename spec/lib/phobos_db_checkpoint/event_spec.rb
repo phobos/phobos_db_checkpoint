@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe PhobosDBCheckpoint::Event, type: :db do
@@ -14,7 +16,7 @@ describe PhobosDBCheckpoint::Event, type: :db do
   describe '#checksum' do
     it 'is created based on the payload' do
       expect(PhobosDBCheckpoint::Event.new.checksum).to be_nil
-      expect(PhobosDBCheckpoint::Event.new(payload: {data: 'A'}.to_json).checksum).to eql 'c1a837e058f7aa037afdf142c013af05'
+      expect(PhobosDBCheckpoint::Event.new(payload: { data: 'A' }.to_json).checksum).to eql 'c1a837e058f7aa037afdf142c013af05'
     end
   end
 
@@ -51,7 +53,7 @@ describe PhobosDBCheckpoint::Event, type: :db do
   end
 
   describe '#created_at' do
-    let!(:frozen_time) { Time.new(2017,12,12,23,40,02) }
+    let!(:frozen_time) { Time.new(2017, 12, 12, 23, 40, 0o2) }
 
     it 'sets created_at' do
       allow(Time).to receive(:now).and_return(frozen_time)
@@ -63,12 +65,12 @@ describe PhobosDBCheckpoint::Event, type: :db do
   describe '.order_by_event_time_and_created_at' do
     before do
       PhobosDBCheckpoint::Event.delete_all
-      PhobosDBCheckpoint::Event.create(id: '1', entity_id: '1', event_time: nil, created_at: Time.now-100, )
-      PhobosDBCheckpoint::Event.create(id: '2', entity_id: '2', event_time: nil, created_at: Time.now-200)
-      PhobosDBCheckpoint::Event.create(id: '3', entity_id: '3', event_time: Time.now-300, created_at: Time.now-300)
-      PhobosDBCheckpoint::Event.create(id: '4', entity_id: '4', event_time: nil).tap { |r| r.created_at=nil; r.save! }
-      PhobosDBCheckpoint::Event.create(id: '5', entity_id: '5', event_time: Time.now-400).tap { |r| r.created_at=nil; r.save! }
-      PhobosDBCheckpoint::Event.create(id: '6', entity_id: '6', event_time: Time.now-500).tap { |r| r.created_at=nil; r.save! }
+      PhobosDBCheckpoint::Event.create(id: '1', entity_id: '1', event_time: nil, created_at: Time.now - 100)
+      PhobosDBCheckpoint::Event.create(id: '2', entity_id: '2', event_time: nil, created_at: Time.now - 200)
+      PhobosDBCheckpoint::Event.create(id: '3', entity_id: '3', event_time: Time.now - 300, created_at: Time.now - 300)
+      PhobosDBCheckpoint::Event.create(id: '4', entity_id: '4', event_time: nil).tap { |r| r.created_at = nil; r.save! }
+      PhobosDBCheckpoint::Event.create(id: '5', entity_id: '5', event_time: Time.now - 400).tap { |r| r.created_at = nil; r.save! }
+      PhobosDBCheckpoint::Event.create(id: '6', entity_id: '6', event_time: Time.now - 500).tap { |r| r.created_at = nil; r.save! }
     end
 
     it 'sorts it in descending order leaving null timestamp records trailing at the end' do
@@ -76,7 +78,7 @@ describe PhobosDBCheckpoint::Event, type: :db do
         PhobosDBCheckpoint::Event
           .order_by_event_time_and_created_at
           .pluck('entity_id')
-      ).to eq ['3', '5', '6', '1', '2', '4']
+      ).to eq %w[3 5 6 1 2 4]
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe PhobosDBCheckpoint::EventHelper, type: :db do
@@ -21,9 +23,9 @@ RSpec.describe PhobosDBCheckpoint::EventHelper, type: :db do
       let(:group_id) { 'check-testpoint' }
 
       it 'fails with ListenerNotFoundError' do
-        expect {
+        expect do
           subject.configured_listener
-        }.to raise_error(
+        end.to raise_error(
           PhobosDBCheckpoint::ListenerNotFoundError,
           "Phobos Listener not found for group id 'check-testpoint'"
         )
@@ -49,7 +51,7 @@ RSpec.describe PhobosDBCheckpoint::EventHelper, type: :db do
       context 'and handler implements the method' do
         class DummyHandler
           attr_accessor :payload
-          def foo_bar(payload)
+          def foo_bar(_payload)
             'baz'
           end
         end

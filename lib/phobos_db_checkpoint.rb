@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'digest'
 require 'active_record'
@@ -13,10 +15,10 @@ require 'phobos_db_checkpoint/handler'
 require 'phobos_db_checkpoint/actions/retry_failure'
 
 module PhobosDBCheckpoint
-  DEFAULT_DB_DIR = 'db'.freeze
+  DEFAULT_DB_DIR = 'db'
   DEFAULT_MIGRATION_PATH = File.join(DEFAULT_DB_DIR, 'migrate').freeze
-  DEFAULT_DB_CONFIG_PATH = 'config/database.yml'.freeze
-  DEFAULT_POOL_SIZE = 5.freeze
+  DEFAULT_DB_CONFIG_PATH = 'config/database.yml'
+  DEFAULT_POOL_SIZE = 5
 
   class << self
     attr_reader :db_config
@@ -45,7 +47,7 @@ module PhobosDBCheckpoint
 
       @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
 
-      configs = YAML.load(ERB.new(File.read(File.expand_path(@db_config_path))).result)
+      configs = YAML.safe_load(ERB.new(File.read(File.expand_path(@db_config_path))).result)
       @db_config = configs[env]
 
       pool_size = @db_config['pool']

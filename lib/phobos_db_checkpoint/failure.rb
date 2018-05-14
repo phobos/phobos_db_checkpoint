@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PhobosDBCheckpoint
   class Failure < ActiveRecord::Base
     include PhobosDBCheckpoint::EventHelper

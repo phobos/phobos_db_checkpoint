@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe PhobosDBCheckpoint do
@@ -15,15 +17,15 @@ RSpec.describe PhobosDBCheckpoint do
     end
 
     it 'does not emit a deprecation warning' do
-      expect {
+      expect do
         PhobosDBCheckpoint.configure
-      }.to_not output.to_stderr
+      end.to_not output.to_stderr
     end
 
     it 'emits a deprecation warning if using any option' do
-      expect {
+      expect do
         PhobosDBCheckpoint.configure(foo: :bar)
-      }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
+      end.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
     end
   end
 
@@ -47,7 +49,7 @@ RSpec.describe PhobosDBCheckpoint do
 
       it 'uses pool size from configuration' do
         allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
-          listeners: []
+                                                       listeners: []
         ))
         PhobosDBCheckpoint.load_db_config
 
@@ -60,11 +62,11 @@ RSpec.describe PhobosDBCheckpoint do
       allow(Phobos)
         .to receive(:config)
         .and_return(Phobos::DeepStruct.new(
-          listeners: [
-            { max_concurrency: 2 },
-            { }, # default 1
-            { max_concurrency: 12 }
-          ]
+                      listeners: [
+                        { max_concurrency: 2 },
+                        {}, # default 1
+                        { max_concurrency: 12 }
+                      ]
         ))
       PhobosDBCheckpoint.load_db_config
 
@@ -73,15 +75,15 @@ RSpec.describe PhobosDBCheckpoint do
     end
 
     it 'does not emit a deprecation warning' do
-      expect {
+      expect do
         PhobosDBCheckpoint.load_db_config
-      }.to_not output.to_stderr
+      end.to_not output.to_stderr
     end
 
     it 'emits a deprecation warning if using any option' do
-      expect {
+      expect do
         PhobosDBCheckpoint.load_db_config(foo: :bar)
-      }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
+      end.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
     end
 
     context 'when using erb syntax in configuration file' do
