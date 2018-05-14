@@ -32,11 +32,6 @@ Metrics/ParameterLists:
   Max: 7
 
 # Offense count: 1
-Style/MethodMissing:
-  Exclude:
-    - 'lib/phobos_db_checkpoint/event_helper.rb'
-
-# Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, AllowInnerSlashes.
 # SupportedStyles: slashes, percent_r, mixed
