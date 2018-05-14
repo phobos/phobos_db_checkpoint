@@ -20,7 +20,7 @@ module PhobosDBCheckpoint
     end
 
     def method_missing(m, *args, &block)
-      rex = m.to_s.match /^fetch_(.+)/
+      rex = m.to_s.match(/^fetch_(.+)/)
 
       if rex
         handler = configured_handler.new

@@ -31,11 +31,8 @@ end
 PhobosDBCheckpoint.load_tasks
 setup_test_env
 
-begin
-  Rake.application['db:environment:set'].invoke
-  Rake.application['db:drop'].invoke
-rescue ActiveRecord::NoDatabaseError
-end
+Rake.application['db:environment:set'].invoke
+Rake.application['db:drop'].invoke
 
 FileUtils.rm_rf(SPEC_DB_DIR)
 result = `./bin/phobos_db_checkpoint copy-migrations --destination #{PhobosDBCheckpoint.migration_path} --config #{PhobosDBCheckpoint.db_config_path}`

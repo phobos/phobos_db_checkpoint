@@ -61,10 +61,12 @@ module PhobosDBCheckpoint
       ActiveRecord::Base.establish_connection(db_config)
     end
 
+    # rubocop:disable Lint/HandleExceptions
     def close_db_connection
       ActiveRecord::Base.connection_pool.disconnect!
     rescue ActiveRecord::ConnectionNotEstablished
     end
+    # rubocop:enable Lint/HandleExceptions
 
     def load_tasks
       @db_dir ||= DEFAULT_DB_DIR
