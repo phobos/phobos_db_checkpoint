@@ -27,7 +27,7 @@ module PhobosDBCheckpoint
       case exception
       when ActiveRecord::RecordNotFound
         status 404
-        type = env['sinatra.route'].match(/\/.+\/(.+)\/:/)[1].chop
+        type = env['sinatra.route'].match(%r{\/.+\/(.+)\/:})[1].chop
         { error: true, message: "#{type} not found" }.to_json
       else
         status 500

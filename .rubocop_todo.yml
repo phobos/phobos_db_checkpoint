@@ -31,14 +31,6 @@ Metrics/MethodLength:
 Metrics/ParameterLists:
   Max: 7
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerSlashes.
-# SupportedStyles: slashes, percent_r, mixed
-Style/RegexpLiteral:
-  Exclude:
-    - 'lib/phobos_db_checkpoint/events_api.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: AllowAsExpressionSeparator.
