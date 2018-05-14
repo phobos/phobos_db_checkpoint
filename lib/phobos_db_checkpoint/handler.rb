@@ -41,11 +41,9 @@ module PhobosDBCheckpoint
             begin
               yield
             rescue StandardError => e
-              if retry_consume?(event, event_metadata, e)
-                raise e
-              else
-                Failure.record(event: event, event_metadata: event_metadata, exception: e)
-              end
+              raise e if retry_consume?(event, event_metadata, e)
+
+              Failure.record(event: event, event_metadata: event_metadata, exception: e)
             end
           end
 

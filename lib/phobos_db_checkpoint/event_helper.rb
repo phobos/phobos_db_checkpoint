@@ -19,8 +19,8 @@ module PhobosDBCheckpoint
         .constantize
     end
 
-    def method_missing(m, *args, &block)
-      rex = m.to_s.match(/^fetch_(.+)/)
+    def method_missing(method, *args, &block)
+      rex = method.to_s.match(/^fetch_(.+)/)
 
       if rex
         handler = configured_handler.new

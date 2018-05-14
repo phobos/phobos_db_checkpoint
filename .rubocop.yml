@@ -18,6 +18,8 @@ inherit_from:
 # Metrics/BlockLength:
 #   Exclude:
 #    - 'tasks/the_huge_task.rake'
+
 AllCops:
   Exclude:
-    - spec/setup
+    - phobos_db_checkpoint.gemspec
+    - spec/setup/**/*.rb

@@ -6,11 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-Lint/UselessAssignment:
-  Exclude:
-    - 'lib/phobos_db_checkpoint/cli.rb'
-
 # Offense count: 6
 Metrics/AbcSize:
   Max: 30
@@ -35,20 +30,6 @@ Metrics/MethodLength:
 # Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
   Max: 7
-
-# Offense count: 1
-# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
-# AllowedNames: io, id, to, by, on, in, at
-Naming/UncommunicativeMethodParamName:
-  Exclude:
-    - 'lib/phobos_db_checkpoint/event_helper.rb'
-
-# Offense count: 2
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Exclude:
-    - 'lib/phobos_db_checkpoint/handler.rb'
-    - 'phobos_db_checkpoint.gemspec'
 
 # Offense count: 2
 # Cop supports --auto-correct.

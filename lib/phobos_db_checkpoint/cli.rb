@@ -99,7 +99,6 @@ module PhobosDBCheckpoint
         @template_migrations_metadata ||= begin
           index = 0
           template_migrations.map do |path|
-            name = path.split('/').last
             index += 1
             { path: path, name: path.gsub(/\.erb$/, ''), number: migration_number(index) }
           end
