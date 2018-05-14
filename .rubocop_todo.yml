@@ -30,11 +30,3 @@ Metrics/MethodLength:
 # Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
   Max: 7
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Exclude:
-    - 'spec/lib/phobos_db_checkpoint/event_spec.rb'
-    - 'spec/lib/phobos_db_checkpoint/failure_spec.rb'

@@ -247,6 +247,7 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   end
 
   describe '.order_by_event_time_and_created_at' do
+    # rubocop:disable Style/Semicolon
     before do
       PhobosDBCheckpoint::Failure.delete_all
       PhobosDBCheckpoint::Failure.create(id: '1', entity_id: '1', event_time: nil, created_at: Time.now - 100)
@@ -256,6 +257,7 @@ describe PhobosDBCheckpoint::Failure, type: :db do
       PhobosDBCheckpoint::Failure.create(id: '5', entity_id: '5', event_time: Time.now - 400).tap { |r| r.created_at = nil; r.save! }
       PhobosDBCheckpoint::Failure.create(id: '6', entity_id: '6', event_time: Time.now - 500).tap { |r| r.created_at = nil; r.save! }
     end
+    # rubocop:enable Style/Semicolon
 
     it 'sorts it in descending order leaving null timestamp records trailing at the end' do
       expect(
