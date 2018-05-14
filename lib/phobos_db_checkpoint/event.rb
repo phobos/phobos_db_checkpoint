@@ -5,7 +5,7 @@ module PhobosDBCheckpoint
     include PhobosDBCheckpoint::EventHelper
     after_initialize :assign_checksum
 
-    scope :order_by_event_time_and_created_at, -> {
+    scope :order_by_event_time_and_created_at, lambda {
       order('event_time desc nulls last', 'created_at desc nulls last')
     }
 

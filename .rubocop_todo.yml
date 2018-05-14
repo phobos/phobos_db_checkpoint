@@ -31,15 +31,6 @@ Metrics/MethodLength:
 Metrics/ParameterLists:
   Max: 7
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: line_count_dependent, lambda, literal
-Style/Lambda:
-  Exclude:
-    - 'lib/phobos_db_checkpoint/event.rb'
-    - 'lib/phobos_db_checkpoint/failure.rb'
-
 # Offense count: 1
 Style/MethodMissing:
   Exclude:
