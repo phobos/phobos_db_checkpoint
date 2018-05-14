@@ -31,8 +31,13 @@ end
 PhobosDBCheckpoint.load_tasks
 setup_test_env
 
-Rake.application['db:environment:set'].invoke
-Rake.application['db:drop'].invoke
+# rubocop:disable Lint/HandleExceptions
+begin
+  Rake.application['db:environment:set'].invoke
+  Rake.application['db:drop'].invoke
+rescue ActiveRecord::NoDatabaseError
+end
+# rubocop:enable Lint/HandleExceptions
 
 FileUtils.rm_rf(SPEC_DB_DIR)
 result = `./bin/phobos_db_checkpoint copy-migrations --destination #{PhobosDBCheckpoint.migration_path} --config #{PhobosDBCheckpoint.db_config_path}`
