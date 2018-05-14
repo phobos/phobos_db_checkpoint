@@ -52,9 +52,7 @@ module PhobosDBCheckpoint
 
       pool_size = @db_config['pool']
 
-      if pool_size.nil? && Phobos.config
-        pool_size = number_of_concurrent_listeners + DEFAULT_POOL_SIZE
-      end
+      pool_size = number_of_concurrent_listeners + DEFAULT_POOL_SIZE if pool_size.nil? && Phobos.config
 
       @db_config.merge!('pool' => pool_size || DEFAULT_POOL_SIZE)
     end
