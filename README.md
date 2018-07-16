@@ -135,7 +135,7 @@ class MyHandler
 
   # <-- setup @avro before
 
-  def before_consume(payload)
+  def before_consume(payload, _metadata)
     @avro.decode(payload)
   end
 

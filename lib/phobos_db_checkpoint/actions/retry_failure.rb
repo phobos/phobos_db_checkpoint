@@ -8,11 +8,9 @@ module PhobosDBCheckpoint
     end
 
     def perform
-      self
-        .class
-        .around_consume(payload, metadata) do
-          @action_taken = handler.consume(payload, metadata)
-        end
+      around_consume(payload, metadata) do
+        @action_taken = handler.consume(payload, metadata)
+      end
 
       @failure.destroy
       @action_taken
