@@ -15,6 +15,10 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
   let(:event_type) { 'event-type' }
   let(:event_version) { 'v1' }
 
+  before do
+    allow(TestPhobosDbCheckpointHandler).to receive(:new).and_return(handler)
+  end
+
   it 'exposes Phobos::Handler.start' do
     expect(TestPhobosDbCheckpointHandler).to respond_to :start
   end
@@ -40,9 +44,7 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
     let(:metadata) { Hash(topic: topic, group_id: group_id) }
 
     def run_handler
-      TestPhobosDbCheckpointHandler.around_consume(payload, metadata) do
-        handler.consume(payload, metadata)
-      end
+      process_message(handler: TestPhobosDbCheckpointHandler, payload: payload, metadata: metadata)
     end
 
     describe 'when returning ack' do

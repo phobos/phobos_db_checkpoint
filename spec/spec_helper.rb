@@ -9,6 +9,7 @@ require 'bundler/setup'
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'phobos_db_checkpoint'
+require 'phobos/test'
 
 require 'fileutils'
 require 'pry-byebug'
@@ -53,6 +54,8 @@ DatabaseCleaner.strategy = :truncation
 DatabaseCleaner::ActiveRecord.config_file_location = PhobosDBCheckpoint.db_config
 
 RSpec.configure do |config|
+  config.include Phobos::Test::Helper
+
   config.before(:context, standalone: true) do
     ActiveRecord::Base.connection.disconnect!
   end
