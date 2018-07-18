@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'fileutils'
 require 'phobos_db_checkpoint/cli'
@@ -25,7 +27,7 @@ RSpec.describe PhobosDBCheckpoint::CLI do
 
     it 'add require and load_tasks to Rakefile' do
       invoke_cmd
-      expect(File.exists?('spec/tmp/Rakefile')).to eql true
+      expect(File.exist?('spec/tmp/Rakefile')).to eql true
       expect(File.read(File.join(destination_root, 'Rakefile')))
         .to eql <<~FILE
           require 'phobos_db_checkpoint'
@@ -35,7 +37,7 @@ RSpec.describe PhobosDBCheckpoint::CLI do
 
     it 'copy database.yml.example to config/database.yml' do
       invoke_cmd
-      expect(File.exists?('spec/tmp/config/database.yml')).to eql true
+      expect(File.exist?('spec/tmp/config/database.yml')).to eql true
       expect(File.read(File.join(destination_root, 'config/database.yml')))
         .to eql File.read(File.join(root, 'templates/database.yml.example'))
     end
@@ -43,12 +45,12 @@ RSpec.describe PhobosDBCheckpoint::CLI do
     it 'copy migrations to db/migrate' do
       invoke_cmd
       template_migrations = Dir
-        .entries(File.join(root, 'templates/migrate'))
-        .select {|f| f =~ /\.rb$/}
+                            .entries(File.join(root, 'templates/migrate'))
+                            .select { |f| f =~ /\.rb$/ }
 
       generated_migrations = Dir
-        .entries(File.join(destination_root, 'db/migrate'))
-        .select {|f| f =~ /\.rb$/}
+                             .entries(File.join(destination_root, 'db/migrate'))
+                             .select { |f| f =~ /\.rb$/ }
 
       template_migrations.each do |migration|
         expect(generated_migrations.find { |m| m =~ /\d+_#{migration}/ }).to_not be_nil
@@ -57,7 +59,7 @@ RSpec.describe PhobosDBCheckpoint::CLI do
 
     it 'add db:migrate to phobos_boot.rb' do
       invoke_cmd
-      expect(File.exists?('spec/tmp/phobos_boot.rb')).to eql true
+      expect(File.exist?('spec/tmp/phobos_boot.rb')).to eql true
       expect(File.read(File.join(destination_root, 'phobos_boot.rb')))
         .to eql File.read(File.join(root, 'templates/phobos_boot.rb'))
     end
@@ -82,8 +84,8 @@ RSpec.describe PhobosDBCheckpoint::CLI do
     end
 
     context 'when templating fails' do
-      let(:file1) { {:path=>"phobos_01_create_events.rb.erb", :name=>"phobos_01_create_events.rb", :number=>"20170208104625857375"} }
-      let(:file2) { {:path=>"phobos_02_create_failures.rb.erb", :name=>"phobos_02_create_failures.rb", :number=>"20170308104625857375"} }
+      let(:file1) { { path: 'phobos_01_create_events.rb.erb', name: 'phobos_01_create_events.rb', number: '20170208104625857375' } }
+      let(:file2) { { path: 'phobos_02_create_failures.rb.erb', name: 'phobos_02_create_failures.rb', number: '20170308104625857375' } }
 
       before do
         expect_any_instance_of(PhobosDBCheckpoint::CLI::Commands)
@@ -98,9 +100,9 @@ RSpec.describe PhobosDBCheckpoint::CLI do
       it 'removes empty file' do
         expect(FileUtils).to receive(:rm_f).with('db/migrate/20170208104625857375_phobos_01_create_events.rb')
 
-        expect {
+        expect do
           invoke_cmd
-        }.to raise_error RuntimeError, 'Foo'
+        end.to raise_error RuntimeError, 'Foo'
       end
     end
   end
@@ -130,9 +132,9 @@ RSpec.describe PhobosDBCheckpoint::CLI do
     it 'creates a new migration with the given name' do
       invoke_cmd
       generated_migration = Dir
-        .entries(File.join(destination_root, 'db/migrate'))
-        .select {|f| f =~ /\.rb$/}
-        .find {|f| f =~ /\d+_add_new_column.rb\Z/}
+                            .entries(File.join(destination_root, 'db/migrate'))
+                            .select { |f| f =~ /\.rb$/ }
+                            .find { |f| f =~ /\d+_add_new_column.rb\Z/ }
 
       expect(generated_migration).to_not be_nil
     end
@@ -140,8 +142,8 @@ RSpec.describe PhobosDBCheckpoint::CLI do
     it 'creates a valid constant name with the given name' do
       invoke_cmd
       migration_name = Dir
-        .entries(File.join(destination_root, 'db/migrate'))
-        .find {|f| f =~ /\d+_add_new_column.rb\Z/}
+                       .entries(File.join(destination_root, 'db/migrate'))
+                       .find { |f| f =~ /\d+_add_new_column.rb\Z/ }
 
       migration_path = File.join(destination_root, 'db/migrate', migration_name)
       expect(File.read(migration_path)).to match('class AddNewColumn < ActiveRecord::Migration')
@@ -157,7 +159,7 @@ RSpec.describe PhobosDBCheckpoint::CLI do
 
     it 'copy config.ru to root' do
       invoke_cmd
-      expect(File.exists?('spec/tmp/config.ru')).to eql true
+      expect(File.exist?('spec/tmp/config.ru')).to eql true
       expect(File.read(File.join(destination_root, 'config.ru')))
         .to eql File.read(File.join(root, 'templates/config.ru'))
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PhobosDBCheckpoint
   class RetryFailure
     include PhobosDBCheckpoint::Handler

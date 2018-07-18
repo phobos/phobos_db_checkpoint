@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simplecov'
 SimpleCov.start do
   add_filter '/spec/'
@@ -5,7 +7,7 @@ end
 
 require 'bundler/setup'
 
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'phobos_db_checkpoint'
 
 require 'fileutils'
@@ -14,8 +16,8 @@ require 'database_cleaner'
 require 'pg'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-  SimpleCov::Formatter::HTMLFormatter,
-])
+                                                                 SimpleCov::Formatter::HTMLFormatter
+                                                               ])
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 SPEC_DB_DIR = 'spec/setup'
@@ -29,15 +31,17 @@ end
 PhobosDBCheckpoint.load_tasks
 setup_test_env
 
+# rubocop:disable Lint/HandleExceptions
 begin
   Rake.application['db:environment:set'].invoke
   Rake.application['db:drop'].invoke
 rescue ActiveRecord::NoDatabaseError
 end
+# rubocop:enable Lint/HandleExceptions
 
 FileUtils.rm_rf(SPEC_DB_DIR)
-result = %x{./bin/phobos_db_checkpoint copy-migrations --destination #{PhobosDBCheckpoint.migration_path} --config #{PhobosDBCheckpoint.db_config_path}}
-raise "Copy migrations command failed\n#{result}" unless $?.success?
+result = `./bin/phobos_db_checkpoint copy-migrations --destination #{PhobosDBCheckpoint.migration_path} --config #{PhobosDBCheckpoint.db_config_path}`
+raise "Copy migrations command failed\n#{result}" unless $CHILD_STATUS.success?
 
 Rake.application['db:create'].invoke
 Rake.application['db:migrate'].invoke

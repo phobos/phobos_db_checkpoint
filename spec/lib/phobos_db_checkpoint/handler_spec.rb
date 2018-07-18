@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'securerandom'
 require 'json'
@@ -96,10 +98,10 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
       end
 
       it 'skips consume' do
-        2.times {
+        2.times do
           run_handler
           expect(PhobosDBCheckpoint::Event.count).to eql 1
-        }
+        end
       end
 
       it 'publishes the expected instrumentations, with outcome event_already_consumed' do
@@ -235,42 +237,41 @@ RSpec.describe PhobosDBCheckpoint::Handler, type: :db do
     end
 
     context 'when failure occurs' do
-      let(:block) { Proc.new { |n| raise StandardError, 'foo' } }
+      let(:block) { proc { |_n| raise StandardError, 'foo' } }
 
       context 'and retry consume conditions are met' do
         it 'reraises the error' do
-          expect {
+          expect do
             subject.around_consume(event_payload, event_metadata, &block)
-          }.to raise_error StandardError, 'foo'
+          end.to raise_error StandardError, 'foo'
         end
 
         it 'does not create a Failure record' do
-          expect {
-            expect {
+          expect do
+            expect do
               subject.around_consume(event_payload, event_metadata, &block)
-            }.to raise_error StandardError, 'foo'
-          }.to_not change(PhobosDBCheckpoint::Failure, :count)
+            end.to raise_error StandardError, 'foo'
+          end.to_not change(PhobosDBCheckpoint::Failure, :count)
         end
       end
 
       context 'but retry consume conditions are not met' do
-        let(:event_metadata) {
+        let(:event_metadata) do
           Hash(metadata: 'metadata', retry_count: Phobos.config.db_checkpoint.max_retries, group_id: 'test-checkpoint')
-        }
+        end
 
         it 'suppresses the error' do
-          expect {
+          expect do
             subject.around_consume(event_payload, event_metadata, &block)
-          }.to_not raise_error
+          end.to_not raise_error
         end
 
         it 'creates a Failure record' do
-          expect {
+          expect do
             subject.around_consume(event_payload, event_metadata, &block)
-          }.to change(PhobosDBCheckpoint::Failure, :count).by(1)
+          end.to change(PhobosDBCheckpoint::Failure, :count).by(1)
         end
       end
     end
-
   end
 end
