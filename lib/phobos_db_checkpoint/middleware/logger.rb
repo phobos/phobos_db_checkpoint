@@ -51,7 +51,7 @@ module PhobosDBCheckpoint
                                 exception_class: error.class.to_s,
                                 exception_message: error.message,
                                 backtrace: error.backtrace
-          ))
+                              ))
         else
           Phobos.logger.info(message)
         end

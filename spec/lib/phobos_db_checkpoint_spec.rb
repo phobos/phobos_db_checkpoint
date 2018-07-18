@@ -50,7 +50,7 @@ RSpec.describe PhobosDBCheckpoint do
       it 'uses pool size from configuration' do
         allow(Phobos).to receive(:config).and_return(Phobos::DeepStruct.new(
                                                        listeners: []
-        ))
+                                                     ))
         PhobosDBCheckpoint.load_db_config
 
         expect(PhobosDBCheckpoint.db_config).to_not be_nil
@@ -67,7 +67,7 @@ RSpec.describe PhobosDBCheckpoint do
                         {}, # default 1
                         { max_concurrency: 12 }
                       ]
-        ))
+                    ))
       PhobosDBCheckpoint.load_db_config
 
       # 2 + 1 + 12 + 5 (add 5 extra connections to the 15 from listeners)
