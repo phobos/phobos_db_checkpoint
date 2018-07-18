@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 module PhobosDBCheckpoint
   module EventHelper
     def configured_listener
       listener = Phobos
-        .config
-        .listeners
-        .find { |l| l.group_id == self.group_id }
+                 .config
+                 .listeners
+                 .find { |l| l.group_id == group_id }
 
-      raise(ListenerNotFoundError, self.group_id) unless listener
+      raise(ListenerNotFoundError, group_id) unless listener
 
       listener
     end
@@ -17,15 +19,18 @@ module PhobosDBCheckpoint
         .constantize
     end
 
-    def method_missing(m, *args, &block)
-      rex = m.to_s.match /^fetch_(.+)/
-
-      if rex
+    def method_missing(method_name, *args, &block)
+      if method_name.to_s =~ /^fetch_(.*)/
+        method = Regexp.last_match(1)
         handler = configured_handler.new
-        return handler.send(rex[1], payload) if handler.respond_to?(rex[1])
+        handler.send(method, payload) if handler.respond_to?(method)
       else
         super
       end
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      method_name.to_s.start_with?('fetch_') || super
     end
   end
 end

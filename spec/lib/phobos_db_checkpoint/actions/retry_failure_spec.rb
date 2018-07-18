@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe PhobosDBCheckpoint::RetryFailure, type: :db do
@@ -41,19 +43,19 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
       end
 
       it 'destroys the failure' do
-        expect {
+        expect do
           subject.perform
-        }.to change(PhobosDBCheckpoint::Failure, :count).by(-1)
+        end.to change(PhobosDBCheckpoint::Failure, :count).by(-1)
 
-        expect {
+        expect do
           failure.reload
-        }.to raise_error ActiveRecord::RecordNotFound
+        end.to raise_error ActiveRecord::RecordNotFound
       end
 
       it 'does not persist the event' do
-        expect {
+        expect do
           subject.perform
-        }.to_not change(PhobosDBCheckpoint::Event, :count)
+        end.to_not change(PhobosDBCheckpoint::Event, :count)
       end
 
       context 'when returning an ack' do
@@ -73,9 +75,9 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
         end
 
         it 'persist the event' do
-          expect {
+          expect do
             subject.perform
-          }.to change(PhobosDBCheckpoint::Event, :count).by(1)
+          end.to change(PhobosDBCheckpoint::Event, :count).by(1)
         end
       end
     end
@@ -99,15 +101,15 @@ describe PhobosDBCheckpoint::RetryFailure, type: :db do
       end
 
       it 'does not destroy the failure' do
-        expect {
-          expect {
+        expect do
+          expect do
             subject.perform
-          }.to raise_error(RuntimeError, 'ConsumeError')
-        }.to change(PhobosDBCheckpoint::Failure, :count).by(0)
+          end.to raise_error(RuntimeError, 'ConsumeError')
+        end.to change(PhobosDBCheckpoint::Failure, :count).by(0)
 
-        expect {
+        expect do
           failure.reload
-        }.to_not raise_error
+        end.to_not raise_error
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'rack'
 require 'sinatra/base'
@@ -25,7 +27,7 @@ module PhobosDBCheckpoint
       case exception
       when ActiveRecord::RecordNotFound
         status 404
-        type = env['sinatra.route'].match(/\/.+\/(.+)\/:/)[1].chop
+        type = env['sinatra.route'].match(%r{\/.+\/(.+)\/:})[1].chop
         { error: true, message: "#{type} not found" }.to_json
       else
         status 500
@@ -84,8 +86,8 @@ module PhobosDBCheckpoint
     get "/#{VERSION}/failures/count" do
       content_type :json
       count = PhobosDBCheckpoint::Failure
-        .all
-        .count
+              .all
+              .count
 
       { count: count }.to_json
     end
@@ -116,7 +118,7 @@ module PhobosDBCheckpoint
           PhobosDBCheckpoint::RetryFailure
             .new(failure)
             .perform
-        rescue => e
+        rescue StandardError => e
           status 422
           return { error: true, message: e.message }.to_json
         end

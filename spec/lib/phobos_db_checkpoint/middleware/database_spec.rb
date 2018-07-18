@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'phobos_db_checkpoint/middleware/database'
 
@@ -31,14 +33,14 @@ describe PhobosDBCheckpoint::Middleware::Database, type: :db do
   end
 
   it 'does not emit a deprecation warning' do
-    expect {
+    expect do
       PhobosDBCheckpoint::Middleware::Database.new(app)
-    }.to_not output.to_stderr
+    end.to_not output.to_stderr
   end
 
   it 'emits a deprecation warning if using any option' do
-    expect {
-      PhobosDBCheckpoint::Middleware::Database.new(app, { foo: :bar })
-    }.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
+    expect do
+      PhobosDBCheckpoint::Middleware::Database.new(app, foo: :bar)
+    end.to output(/DEPRECATION WARNING: options are deprecated, use configuration files instead/).to_stderr
   end
 end

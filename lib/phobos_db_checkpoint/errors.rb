@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PhobosDBCheckpoint
   class PhobosDBCheckpointError < StandardError; end
   class ListenerNotFoundError < PhobosDBCheckpointError

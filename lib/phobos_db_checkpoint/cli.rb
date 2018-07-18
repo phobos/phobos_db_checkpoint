@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'thor'
 require 'fileutils'
 
 module PhobosDBCheckpoint
   module CLI
-
     class Commands < Thor
       include Thor::Actions
 
@@ -39,13 +40,9 @@ module PhobosDBCheckpoint
              default: 'config/database.yml',
              banner: 'Database configuration relative to your project'
       def copy_migrations
-        if options[:config]
-          ENV['DB_CONFIG'] = options[:config]
-        end
+        ENV['DB_CONFIG'] = options[:config] if options[:config]
 
-        unless active_connection?
-          PhobosDBCheckpoint.configure
-        end
+        PhobosDBCheckpoint.configure unless active_connection?
 
         destination_fullpath = File.join(destination_root, options[:destination])
         generated_migrations = list_migrations(destination_fullpath)
@@ -60,7 +57,7 @@ module PhobosDBCheckpoint
             template(template_path, file_path)
           end
         end
-      rescue
+      rescue StandardError
         FileUtils.rm_f(file_path.to_s)
         raise
       end
@@ -95,16 +92,15 @@ module PhobosDBCheckpoint
       end
 
       def migration_number(index = 0)
-        [Time.now.utc.strftime('%Y%m%d%H%M%S%6N'), '%.21d' % index].max
+        [Time.now.utc.strftime('%Y%m%d%H%M%S%6N'), format('%.21d', index)].max
       end
 
       def template_migrations_metadata
         @template_migrations_metadata ||= begin
           index = 0
           template_migrations.map do |path|
-            name = path.split('/').last
             index += 1
-            {path: path, name: path.gsub(/\.erb$/, ''), number: migration_number(index)}
+            { path: path, name: path.gsub(/\.erb$/, ''), number: migration_number(index) }
           end
         end
       end
@@ -133,8 +129,8 @@ module PhobosDBCheckpoint
       def active_connection?
         ActiveRecord::Base
           .connection_pool
-          .with_connection { |con| con.active? }
-      rescue
+          .with_connection(&:active?)
+      rescue StandardError
         false
       end
     end

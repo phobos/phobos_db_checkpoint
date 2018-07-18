@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PhobosDBCheckpoint
   class RetryFailure
     include PhobosDBCheckpoint::Handler
@@ -8,9 +10,11 @@ module PhobosDBCheckpoint
     end
 
     def perform
-      around_consume(payload, metadata) do
-        @action_taken = handler.consume(payload, metadata)
-      end
+      self
+        .class
+        .around_consume(payload, metadata) do
+          @action_taken = handler.consume(payload, metadata)
+        end
 
       @failure.destroy
       @action_taken

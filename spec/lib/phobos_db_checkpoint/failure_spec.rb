@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe PhobosDBCheckpoint::Failure, type: :db do
@@ -16,9 +18,9 @@ describe PhobosDBCheckpoint::Failure, type: :db do
 
   describe '.record' do
     it 'creates a failure record' do
-      expect {
+      expect do
         subject
-      }.to change(described_class, :count).by(1)
+      end.to change(described_class, :count).by(1)
     end
 
     it 'stores payload as json' do
@@ -33,16 +35,16 @@ describe PhobosDBCheckpoint::Failure, type: :db do
       let(:exception) do
         e = nil
         begin
-          0/0
-        rescue => error
+          0 / 0
+        rescue StandardError => error
           e = error
         end
         e
       end
 
-      let(:attributes_for_create) {
+      let(:attributes_for_create) do
         Hash(event: event, event_metadata: event_metadata, exception: exception)
-      }
+      end
 
       it 'stores exception class' do
         expect(subject.error_class).to eql exception.class.name
@@ -63,9 +65,9 @@ describe PhobosDBCheckpoint::Failure, type: :db do
       end
 
       it 'does not create a failure record' do
-        expect {
+        expect do
           subject
-        }.to_not change(described_class, :count)
+        end.to_not change(described_class, :count)
       end
     end
   end
@@ -80,19 +82,19 @@ describe PhobosDBCheckpoint::Failure, type: :db do
 
   describe 'attributes' do
     let(:time) { Time.now.to_s }
-    let(:event_payload) {
+    let(:event_payload) do
       Hash(
         'time' => time
       )
-    }
+    end
 
-    let(:event_metadata) {
+    let(:event_metadata) do
       Hash(
         metadata: 'metadata',
         checksum: checksum,
         group_id: 'test-checkpoint'
       )
-    }
+    end
     class DummyHandler
       include PhobosDBCheckpoint::Handler
       def event_time(payload)
@@ -110,7 +112,7 @@ describe PhobosDBCheckpoint::Failure, type: :db do
     end
 
     it 'has a getter override for payload returning symbolic keys' do
-      expect(subject.payload).to eql({ time: time })
+      expect(subject.payload).to eql(time: time)
     end
 
     it 'has a getter override for metadata returning symbolic keys' do
@@ -245,22 +247,24 @@ describe PhobosDBCheckpoint::Failure, type: :db do
   end
 
   describe '.order_by_event_time_and_created_at' do
+    # rubocop:disable Style/Semicolon
     before do
       PhobosDBCheckpoint::Failure.delete_all
-      PhobosDBCheckpoint::Failure.create(id: '1', entity_id: '1', event_time: nil, created_at: Time.now-100)
-      PhobosDBCheckpoint::Failure.create(id: '2', entity_id: '2', event_time: nil, created_at: Time.now-200)
-      PhobosDBCheckpoint::Failure.create(id: '3', entity_id: '3', event_time: Time.now-300, created_at: Time.now-300)
-      PhobosDBCheckpoint::Failure.create(id: '4', entity_id: '4', event_time: nil).tap { |r| r.created_at=nil; r.save! }
-      PhobosDBCheckpoint::Failure.create(id: '5', entity_id: '5', event_time: Time.now-400).tap { |r| r.created_at=nil; r.save! }
-      PhobosDBCheckpoint::Failure.create(id: '6', entity_id: '6', event_time: Time.now-500).tap { |r| r.created_at=nil; r.save! }
+      PhobosDBCheckpoint::Failure.create(id: '1', entity_id: '1', event_time: nil, created_at: Time.now - 100)
+      PhobosDBCheckpoint::Failure.create(id: '2', entity_id: '2', event_time: nil, created_at: Time.now - 200)
+      PhobosDBCheckpoint::Failure.create(id: '3', entity_id: '3', event_time: Time.now - 300, created_at: Time.now - 300)
+      PhobosDBCheckpoint::Failure.create(id: '4', entity_id: '4', event_time: nil).tap { |r| r.created_at = nil; r.save! }
+      PhobosDBCheckpoint::Failure.create(id: '5', entity_id: '5', event_time: Time.now - 400).tap { |r| r.created_at = nil; r.save! }
+      PhobosDBCheckpoint::Failure.create(id: '6', entity_id: '6', event_time: Time.now - 500).tap { |r| r.created_at = nil; r.save! }
     end
+    # rubocop:enable Style/Semicolon
 
     it 'sorts it in descending order leaving null timestamp records trailing at the end' do
       expect(
         PhobosDBCheckpoint::Failure
           .order_by_event_time_and_created_at
           .pluck('entity_id')
-      ).to eq ['3', '5', '6', '1', '2', '4']
+      ).to eq %w[3 5 6 1 2 4]
     end
   end
 end

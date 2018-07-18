@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'phobos_db_checkpoint'
 PhobosDBCheckpoint.configure

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'rack/test'
 require 'phobos_db_checkpoint/events_api'
@@ -17,7 +19,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       event_type: event_type,
       event_time: event_time,
       created_at: created_at,
-      payload: {data: SecureRandom.uuid}.merge(payload).to_json
+      payload: { data: SecureRandom.uuid }.merge(payload).to_json
     )
   end
 
@@ -49,7 +51,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
     context 'when the event does not exist' do
       it 'returns 404' do
-        get "/v1/events/not-found"
+        get '/v1/events/not-found'
         expect(last_response.status).to eql 404
         expect(last_response.body).to eql Hash(error: true, message: 'event not found').to_json
       end
@@ -59,17 +61,17 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
   describe 'GET /v1/events' do
     before do
       event.delete
-      create_event(entity_id: '1', payload: {mark: '|A|'}, created_at: Time.now-300, event_time: nil, topic: 'test2', event_type: 'special')
-      create_event(entity_id: '2', payload: {mark: '|B|'}, created_at: Time.now-200, event_time: Time.now + 1000)
-      create_event(entity_id: '3', payload: {mark: '|C|'}, created_at: Time.now-100, event_time: Time.now + 2000)
-      create_event(entity_id: '4', payload: {mark: '|D|'}, created_at: Time.now-0,   event_time: nil, topic: 'test2', event_type: 'special')
+      create_event(entity_id: '1', payload: { mark: '|A|' }, created_at: Time.now - 300, event_time: nil, topic: 'test2', event_type: 'special')
+      create_event(entity_id: '2', payload: { mark: '|B|' }, created_at: Time.now - 200, event_time: Time.now + 1000)
+      create_event(entity_id: '3', payload: { mark: '|C|' }, created_at: Time.now - 100, event_time: Time.now + 2000)
+      create_event(entity_id: '4', payload: { mark: '|D|' }, created_at: Time.now - 0,   event_time: nil, topic: 'test2', event_type: 'special')
     end
 
     context 'when called with limit' do
       it 'returns the X most recent events' do
         get '/v1/events?limit=2'
         body = JSON.parse(last_response.body)
-        expect(body.pluck('entity_id')).to eq ['3', '2']
+        expect(body.pluck('entity_id')).to eq %w[3 2]
       end
     end
 
@@ -77,7 +79,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events in the correct offset' do
         get '/v1/events?limit=2&offset=2'
         body = JSON.parse(last_response.body)
-        expect(body.pluck('entity_id')).to eq ['4' , '1']
+        expect(body.pluck('entity_id')).to eq %w[4 1]
       end
     end
 
@@ -93,7 +95,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events filtered by topic' do
         get '/v1/events?limit=100&topic=test2'
         body = JSON.parse(last_response.body)
-        expect(body.pluck('entity_id')).to eq ['4', '1']
+        expect(body.pluck('entity_id')).to eq %w[4 1]
       end
     end
 
@@ -101,7 +103,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events filtered by group_id' do
         get '/v1/events?limit=100&group_id=test-checkpoint'
         body = JSON.parse(last_response.body)
-        expect(body.pluck('entity_id')).to eq ['3', '2', '4', '1']
+        expect(body.pluck('entity_id')).to eq %w[3 2 4 1]
       end
     end
 
@@ -109,7 +111,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
       it 'returns the X most recent events filtered by event_type' do
         get '/v1/events?limit=100&event_type=special'
         body = JSON.parse(last_response.body)
-        expect(body.pluck('entity_id')).to eq ['4' , '1']
+        expect(body.pluck('entity_id')).to eq %w[4 1]
       end
     end
   end
@@ -118,15 +120,15 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     let(:now) { Time.parse(Date.today.beginning_of_day.to_s) }
 
     before do
-      3.times.with_index do |i|
+      3.times do |i|
         PhobosDBCheckpoint::Failure.create do |record|
-          record.topic         = "topic-#{i+1}"
-          record.group_id      = "group_id-#{i+1}"
-          record.entity_id     = "entity_id-#{i+1}"
-          record.event_time    = now + i*3600
-          record.event_type    = "event_type-#{i+1}"
-          record.event_version = "event_version-#{i+1}"
-          record.checksum      = "checksum-#{i+1}"
+          record.topic         = "topic-#{i + 1}"
+          record.group_id      = "group_id-#{i + 1}"
+          record.entity_id     = "entity_id-#{i + 1}"
+          record.event_time    = now + i * 3600
+          record.event_type    = "event_type-#{i + 1}"
+          record.event_version = "event_version-#{i + 1}"
+          record.checksum      = "checksum-#{i + 1}"
           record.payload       = Hash('payload' => 'payload')
           record.metadata      = Hash('metadata' => 'metadata')
         end
@@ -136,7 +138,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     it 'returns the number of failures' do
       get '/v1/failures/count'
       body = JSON.parse(last_response.body)
-      expect(body).to eq({ 'count' => 3 })
+      expect(body).to eq('count' => 3)
     end
   end
 
@@ -144,15 +146,15 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     let(:now) { Time.parse(Date.today.beginning_of_day.to_s) }
 
     before do
-      3.times.with_index do |i|
+      3.times do |i|
         PhobosDBCheckpoint::Failure.create do |record|
-          record.topic         = "topic-#{i+1}"
-          record.group_id      = "group_id-#{i+1}"
-          record.entity_id     = "entity_id-#{i+1}"
-          record.event_time    = now + i*3600
-          record.event_type    = "event_type-#{i+1}"
-          record.event_version = "event_version-#{i+1}"
-          record.checksum      = "checksum-#{i+1}"
+          record.topic         = "topic-#{i + 1}"
+          record.group_id      = "group_id-#{i + 1}"
+          record.entity_id     = "entity_id-#{i + 1}"
+          record.event_time    = now + i * 3600
+          record.event_type    = "event_type-#{i + 1}"
+          record.event_version = "event_version-#{i + 1}"
+          record.checksum      = "checksum-#{i + 1}"
           record.payload       = Hash('payload' => 'payload')
           record.metadata      = Hash('metadata' => 'metadata')
         end
@@ -229,7 +231,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
     context 'when the failure does not exist' do
       it 'returns 404' do
-        get "/v1/failures/not-found"
+        get '/v1/failures/not-found'
         expect(last_response.status).to eql 404
         expect(last_response.body).to eql Hash(error: true, message: 'failure not found').to_json
       end
@@ -252,7 +254,6 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
         }
       )
     end
-
 
     context 'when handler is configured' do
       before do
@@ -303,7 +304,7 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
     context 'when the event does not exist' do
       it 'returns 404' do
-        post "/v1/failures/not-found/retry"
+        post '/v1/failures/not-found/retry'
         expect(last_response.status).to eql 404
         expect(last_response.body).to eql Hash(error: true, message: 'failure not found').to_json
       end
@@ -326,9 +327,9 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
     it 'deletes the failure' do
       delete "/v1/failures/#{failure.id}"
-      expect {
+      expect do
         failure.reload
-      }.to raise_error ActiveRecord::RecordNotFound
+      end.to raise_error ActiveRecord::RecordNotFound
     end
   end
 
