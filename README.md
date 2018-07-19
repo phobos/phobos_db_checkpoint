@@ -120,14 +120,14 @@ class MyHandler
 end
 ```
 
-If your handler returns anything different than an __ack__ it won't be saved to the database.
+In case your handler returns anything different from an __ack__ it won't be saved to the database.
 
 Note that the `PhobosDBCheckpoint::Handler` will automatically skip already handled events (i.e. duplicate Kafka messages).
 
 #### <a name="payload"></a> Payload
 PhobosDBCheckpoint assumes that the payload received from Phobos is in a JSON format. This means that if your payload is in any other format, for example Avro binary, you need to convert/decode it to JSON.
 
-To achieve this you can override the `#before_consume` method of the handler:
+To achieve this you can compose a new handler with `PhobosDBCheckpoint::Handler` using the `#around_consume` method:
 
 ```ruby
 class MyHandler
@@ -135,12 +135,9 @@ class MyHandler
 
   # <-- setup @avro before
 
-  def before_consume(payload, _metadata)
-    @avro.decode(payload)
-  end
-
-  def consume(payload, metadata)
-    # <-- consume your stuff with the decoded payload
+  def around_consume(payload, metadata)
+    decoded_payload = @avro.decode(payload)
+    super(decoded_payload, metadata)
   end
 end
 ```
