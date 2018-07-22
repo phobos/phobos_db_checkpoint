@@ -47,7 +47,7 @@ module PhobosDBCheckpoint
 
       @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
 
-      configs = YAML.safe_load(ERB.new(File.read(File.expand_path(@db_config_path))).result)
+      configs = YAML.safe_load(ERB.new(File.read(File.expand_path(@db_config_path))).result, [], [], true)
       @db_config = configs[env]
 
       pool_size = @db_config['pool']

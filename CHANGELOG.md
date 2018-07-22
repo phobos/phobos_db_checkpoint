@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 ### Changed
-- Introduce rubocop style guide
-- Use test module from Phobos to run handler specs
+- Introduce rubocop style guide #37
+- Use test module from Phobos to run handler specs #39
+- Accomodate future breaking changes of Phobos `around_consume` being moved to an instance method #38
 
 ## 3.3.0 (2017-10-26)
 
