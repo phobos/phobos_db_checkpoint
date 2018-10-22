@@ -39,6 +39,7 @@ module PhobosDBCheckpoint
              aliases: ['-c'],
              default: 'config/database.yml',
              banner: 'Database configuration relative to your project'
+      # rubocop:disable Metrics/MethodLength
       def copy_migrations
         ENV['DB_CONFIG'] = options[:config] if options[:config]
 
@@ -61,6 +62,7 @@ module PhobosDBCheckpoint
         FileUtils.rm_f(file_path.to_s)
         raise
       end
+      # rubocop:enable Metrics/MethodLength
 
       desc 'migration NAME', 'Generates a new migration with the given name. Use underlines (_) as a separator, ex: add_new_column'
       option :destination,

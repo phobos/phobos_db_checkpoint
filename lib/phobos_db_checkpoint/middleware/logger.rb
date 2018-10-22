@@ -36,7 +36,23 @@ module PhobosDBCheckpoint
 
       def log(request_env, status, header, began_at)
         error = request_env[SINATRA_ERROR]
-        message = {
+        message = get_message(request_env, status, header, began_at)
+
+        if error
+          Phobos.logger.error(
+            message.merge(
+              exception_class: error.class.to_s,
+              exception_message: error.message,
+              backtrace: error.backtrace
+            )
+          )
+        else
+          Phobos.logger.info(message)
+        end
+      end
+
+      def get_message(request_env, status, header, began_at)
+        {
           remote_address: request_env['HTTP_X_FORWARDED_FOR'] || request_env['REMOTE_ADDR'],
           remote_user: request_env['REMOTE_USER'],
           request_method: request_env[REQUEST_METHOD],
@@ -45,16 +61,6 @@ module PhobosDBCheckpoint
           content_length: extract_content_length(header),
           request_time: "#{Time.now - began_at}s"
         }
-
-        if error
-          Phobos.logger.error(message.merge(
-                                exception_class: error.class.to_s,
-                                exception_message: error.message,
-                                backtrace: error.backtrace
-                              ))
-        else
-          Phobos.logger.info(message)
-        end
       end
 
       def extract_path(request_env)
