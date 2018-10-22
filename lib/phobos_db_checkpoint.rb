@@ -50,11 +50,13 @@ module PhobosDBCheckpoint
       configs = YAML.safe_load(ERB.new(File.read(File.expand_path(@db_config_path))).result, [], [], true)
       @db_config = configs[env]
 
-      pool_size = @db_config['pool']
-
-      pool_size = number_of_concurrent_listeners + DEFAULT_POOL_SIZE if pool_size.nil? && Phobos.config
-
       @db_config.merge!('pool' => pool_size || DEFAULT_POOL_SIZE)
+    end
+
+    def pool_size
+      pool = @db_config['pool']
+      pool = number_of_concurrent_listeners + DEFAULT_POOL_SIZE if pool.nil? && Phobos.config
+      pool
     end
 
     def establish_db_connection

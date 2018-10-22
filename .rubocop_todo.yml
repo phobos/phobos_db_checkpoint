@@ -20,3 +20,6 @@ Metrics/LineLength:
 # Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
   Max: 7
+
+Metrics/AbcSize:
+  Max: 17
