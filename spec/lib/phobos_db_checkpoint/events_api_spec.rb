@@ -11,17 +11,19 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
     PhobosDBCheckpoint::EventsAPI
   end
 
-  def create_event(entity_id: SecureRandom.uuid, event_type: 'event-type', topic: 'test', group_id: 'test-checkpoint', event_time: Time.now, created_at: nil, payload: {})
+  # rubocop:disable Metrics/CyclomaticComplexity
+  def create_event(opts = {})
     PhobosDBCheckpoint::Event.create(
-      topic: topic,
-      group_id: group_id,
-      entity_id: entity_id,
-      event_type: event_type,
-      event_time: event_time,
-      created_at: created_at,
-      payload: { data: SecureRandom.uuid }.merge(payload).to_json
+      topic: opts[:topic] || 'test',
+      group_id: opts[:group_id] || 'test-checkpoint',
+      entity_id: opts[:entity_id] || SecureRandom.uuid,
+      event_type: opts[:event_type] || 'event-type',
+      event_time: opts[:event_time] || Time.now,
+      created_at: opts[:created_at],
+      payload: { data: SecureRandom.uuid }.merge(opts[:payload] || {}).to_json
     )
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def create_failure(created_at:, payload:, metadata:, exception: nil)
     PhobosDBCheckpoint::Failure.create(

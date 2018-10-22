@@ -11,8 +11,3 @@
 # URISchemes: http, https
 Metrics/LineLength:
   Max: 296
-
-# Offense count: 1
-# Configuration parameters: CountKeywordArgs.
-Metrics/ParameterLists:
-  Max: 7
