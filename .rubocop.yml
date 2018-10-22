@@ -23,3 +23,6 @@ AllCops:
   Exclude:
     - phobos_db_checkpoint.gemspec
     - spec/setup/**/*.rb
+
+Metrics/MethodLength:
+  Max: 15
