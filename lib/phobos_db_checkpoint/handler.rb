@@ -60,12 +60,9 @@ module PhobosDBCheckpoint
         event.exists?
       end
 
-      if event_exists
-        instrument('db_checkpoint.event_already_consumed', event_metadata)
-        true
-      end
+      instrument('db_checkpoint.event_already_consumed', event_metadata) if event_exists
 
-      false
+      event_exists
     end
 
     def record_action(event, event_metadata, event_action)
