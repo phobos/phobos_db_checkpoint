@@ -15,10 +15,9 @@ module PhobosDBCheckpoint
 
     def retry_consume?(_event, event_metadata, _exception)
       return true unless Phobos.config&.db_checkpoint&.max_retries
+
       event_metadata[:retry_count] < Phobos.config&.db_checkpoint&.max_retries
     end
-
-    # rubocop:disable Style/RedundantBegin
     def around_consume(payload, metadata)
       event = PhobosDBCheckpoint::Event.new(
         topic: metadata[:topic],
@@ -59,6 +58,5 @@ module PhobosDBCheckpoint
       # connections to the pool cached by threads that are no longer alive.
       ActiveRecord::Base.clear_active_connections!
     end
-    # rubocop:enable Style/RedundantBegin
   end
 end
