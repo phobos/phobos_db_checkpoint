@@ -18,6 +18,7 @@ module PhobosDBCheckpoint
 
       event_metadata[:retry_count] < Phobos.config&.db_checkpoint&.max_retries
     end
+
     def around_consume(payload, metadata)
       event = PhobosDBCheckpoint::Event.new(
         topic: metadata[:topic],
