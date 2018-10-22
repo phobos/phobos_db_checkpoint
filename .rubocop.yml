@@ -24,12 +24,6 @@ AllCops:
     - phobos_db_checkpoint.gemspec
     - spec/setup/**/*.rb
 
-Metrics/MethodLength:
-  Max: 15
-
-Metrics/AbcSize:
-  Max: 17
-
 Metrics/LineLength:
   Exclude:
     - spec/**/*.rb
