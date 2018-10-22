@@ -10,11 +10,6 @@
 Metrics/AbcSize:
   Max: 30
 
-# Offense count: 1
-# Configuration parameters: CountComments.
-Metrics/ClassLength:
-  Max: 106
-
 # Offense count: 41
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https
