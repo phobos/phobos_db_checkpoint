@@ -64,7 +64,8 @@ module PhobosDBCheckpoint
       end
 
       def extract_path(request_env)
-        "#{request_env[PATH_INFO]}#{request_env[QUERY_STRING].empty? ? '' : "?#{request_env[QUERY_STRING]}"} #{request_env[HTTP_VERSION]}"
+        query_string = request_env[QUERY_STRING].empty? ? '' : "?#{request_env[QUERY_STRING]}"
+        "#{request_env[PATH_INFO]}#{query_string} #{request_env[HTTP_VERSION]}"
       end
 
       def extract_content_length(headers)

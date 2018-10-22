@@ -5,7 +5,7 @@ require 'fileutils'
 
 module PhobosDBCheckpoint
   module CLI
-    # rubocop:disable Metrics/ClassLength
+    # rubocop:disable Metrics/ClassLength, Metrics/LineLength
     class Commands < Thor
       include Thor::Actions
 
@@ -140,6 +140,6 @@ module PhobosDBCheckpoint
         false
       end
     end
-    # rubocop:enable Metrics/ClassLength
+    # rubocop:enable Metrics/ClassLength, Metrics/LineLength
   end
 end

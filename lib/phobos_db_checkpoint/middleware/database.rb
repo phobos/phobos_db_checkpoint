@@ -5,7 +5,9 @@ module PhobosDBCheckpoint
     class Database
       def initialize(app, options = {})
         @app = app
-        PhobosDBCheckpoint.deprecate('options are deprecated, use configuration files instead') if options.keys.any?
+        if options.keys.any?
+          PhobosDBCheckpoint.deprecate('options are deprecated, use configuration files instead')
+        end
         PhobosDBCheckpoint.configure
       end
 
