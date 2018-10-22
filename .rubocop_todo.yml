@@ -6,10 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 6
-Metrics/AbcSize:
-  Max: 30
-
 # Offense count: 41
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https
@@ -20,6 +16,3 @@ Metrics/LineLength:
 # Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
   Max: 7
-
-Metrics/AbcSize:
-  Max: 17
