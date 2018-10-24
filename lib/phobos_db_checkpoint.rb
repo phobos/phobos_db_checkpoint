@@ -47,14 +47,22 @@ module PhobosDBCheckpoint
 
       @db_config_path ||= ENV['DB_CONFIG'] || DEFAULT_DB_CONFIG_PATH
 
-      configs = YAML.safe_load(ERB.new(File.read(File.expand_path(@db_config_path))).result, [], [], true)
       @db_config = configs[env]
 
-      pool_size = @db_config['pool']
-
-      pool_size = number_of_concurrent_listeners + DEFAULT_POOL_SIZE if pool_size.nil? && Phobos.config
-
       @db_config.merge!('pool' => pool_size || DEFAULT_POOL_SIZE)
+    end
+
+    def pool_size
+      pool = @db_config['pool']
+      pool = number_of_concurrent_listeners + DEFAULT_POOL_SIZE if pool.nil? && Phobos.config
+      pool
+    end
+
+    def configs
+      conf = File.read(File.expand_path(@db_config_path))
+      erb = ERB.new(conf).result
+
+      YAML.safe_load(erb, [], [], true)
     end
 
     def establish_db_connection
@@ -72,9 +80,18 @@ module PhobosDBCheckpoint
       @db_dir ||= DEFAULT_DB_DIR
       @migration_path ||= DEFAULT_MIGRATION_PATH
 
-      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :db_dir) { PhobosDBCheckpoint.db_dir }
-      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :migrations_paths) { [PhobosDBCheckpoint.migration_path] }
-      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :env) { PhobosDBCheckpoint.env }
+      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :db_dir) do
+        PhobosDBCheckpoint.db_dir
+      end
+
+      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :migrations_paths) do
+        [PhobosDBCheckpoint.migration_path]
+      end
+
+      ActiveRecord::Tasks::DatabaseTasks.send(:define_method, :env) do
+        PhobosDBCheckpoint.env
+      end
+
       require 'phobos_db_checkpoint/tasks'
     end
 

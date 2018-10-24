@@ -5,6 +5,7 @@ require 'fileutils'
 
 module PhobosDBCheckpoint
   module CLI
+    # rubocop:disable Metrics/ClassLength, Metrics/LineLength
     class Commands < Thor
       include Thor::Actions
 
@@ -17,6 +18,7 @@ module PhobosDBCheckpoint
       end
 
       desc 'init', 'Initialize your project with PhobosDBCheckpoint'
+      # rubocop:disable Metrics/AbcSize
       def init
         create_file('Rakefile') unless File.exist?(File.join(destination_root, 'Rakefile'))
         prepend_to_file 'Rakefile', "require 'phobos_db_checkpoint'\nPhobosDBCheckpoint.load_tasks\n"
@@ -29,6 +31,7 @@ module PhobosDBCheckpoint
         create_file('phobos_boot.rb') unless File.exist?(File.join(destination_root, 'phobos_boot.rb'))
         append_to_file 'phobos_boot.rb', File.read(phobos_boot_template)
       end
+      # rubocop:enable Metrics/AbcSize
 
       desc 'copy-migrations', 'Copy required migrations to the project'
       option :destination,
@@ -39,6 +42,7 @@ module PhobosDBCheckpoint
              aliases: ['-c'],
              default: 'config/database.yml',
              banner: 'Database configuration relative to your project'
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def copy_migrations
         ENV['DB_CONFIG'] = options[:config] if options[:config]
 
@@ -61,6 +65,7 @@ module PhobosDBCheckpoint
         FileUtils.rm_f(file_path.to_s)
         raise
       end
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       desc 'migration NAME', 'Generates a new migration with the given name. Use underlines (_) as a separator, ex: add_new_column'
       option :destination,
@@ -111,6 +116,7 @@ module PhobosDBCheckpoint
 
       def list_migrations(dir)
         return [] unless Dir.exist?(dir)
+
         Dir.entries(dir).select { |f| f =~ /\.rb(\.erb)?$/ }.sort
       end
 
@@ -134,5 +140,6 @@ module PhobosDBCheckpoint
         false
       end
     end
+    # rubocop:enable Metrics/ClassLength, Metrics/LineLength
   end
 end

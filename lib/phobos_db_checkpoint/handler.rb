@@ -15,25 +15,15 @@ module PhobosDBCheckpoint
 
     def retry_consume?(_event, event_metadata, _exception)
       return true unless Phobos.config&.db_checkpoint&.max_retries
+
       event_metadata[:retry_count] < Phobos.config&.db_checkpoint&.max_retries
     end
 
-    # rubocop:disable Style/RedundantBegin
     def around_consume(payload, metadata)
-      event = PhobosDBCheckpoint::Event.new(
-        topic: metadata[:topic],
-        group_id: metadata[:group_id],
-        payload: payload
-      )
-
-      event_metadata = { checksum: event.checksum }.merge(metadata)
+      event, event_metadata = build_event_and_metadata(payload, metadata)
 
       instrument('db_checkpoint.around_consume', event_metadata) do
-        event_exists = instrument('db_checkpoint.event_already_exists_check', event_metadata) { event.exists? }
-        if event_exists
-          instrument('db_checkpoint.event_already_consumed', event_metadata)
-          return
-        end
+        return if event_exists?(event, event_metadata)
 
         event_action = instrument('db_checkpoint.event_action', event_metadata) do
           begin
@@ -45,20 +35,45 @@ module PhobosDBCheckpoint
           end
         end
 
-        case event_action
-        when PhobosDBCheckpoint::Ack
-          instrument('db_checkpoint.event_acknowledged', event_metadata) do
-            event.acknowledge!(event_action)
-          end
-        else
-          instrument('db_checkpoint.event_skipped', event_metadata)
-        end
+        record_action(event, event_metadata, event_action)
       end
     ensure
       # Returns any connections in use by the current thread back to the pool, and also returns
       # connections to the pool cached by threads that are no longer alive.
       ActiveRecord::Base.clear_active_connections!
     end
-    # rubocop:enable Style/RedundantBegin
+
+    def build_event_and_metadata(payload, metadata)
+      event = PhobosDBCheckpoint::Event.new(
+        topic: metadata[:topic],
+        group_id: metadata[:group_id],
+        payload: payload
+      )
+
+      event_metadata = { checksum: event.checksum }.merge(metadata)
+
+      [event, event_metadata]
+    end
+
+    def event_exists?(event, event_metadata)
+      event_exists = instrument('db_checkpoint.event_already_exists_check', event_metadata) do
+        event.exists?
+      end
+
+      instrument('db_checkpoint.event_already_consumed', event_metadata) if event_exists
+
+      event_exists
+    end
+
+    def record_action(event, event_metadata, event_action)
+      case event_action
+      when PhobosDBCheckpoint::Ack
+        instrument('db_checkpoint.event_acknowledged', event_metadata) do
+          event.acknowledge!(event_action)
+        end
+      else
+        instrument('db_checkpoint.event_skipped', event_metadata)
+      end
+    end
   end
 end

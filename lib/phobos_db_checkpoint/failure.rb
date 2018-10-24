@@ -8,6 +8,7 @@ module PhobosDBCheckpoint
       order('event_time desc nulls last', 'created_at desc nulls last')
     }
 
+    # rubocop:disable Metrics/AbcSize
     def self.record(event:, event_metadata:, exception: nil)
       return if exists?(event_metadata[:checksum])
 
@@ -26,6 +27,7 @@ module PhobosDBCheckpoint
         record.error_backtrace = exception&.backtrace
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     def self.exists?(checksum)
       where(checksum: checksum).exists?
