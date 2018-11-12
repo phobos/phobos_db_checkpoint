@@ -27,11 +27,11 @@ describe PhobosDBCheckpoint::EventsAPI, type: :db do
 
   def create_failure(created_at:, payload:, metadata:, exception: nil)
     PhobosDBCheckpoint::Failure.create(
-      created_at:      created_at,
-      payload:         payload,
-      metadata:        metadata,
-      error_class:     exception&.class&.name,
-      error_message:   exception&.class&.message,
+      created_at: created_at,
+      payload: payload,
+      metadata: metadata,
+      error_class: exception&.class&.name,
+      error_message: exception&.class&.message,
       error_backtrace: exception&.class&.backtrace
     )
   end
