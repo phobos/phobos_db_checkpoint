@@ -38,9 +38,15 @@ describe PhobosDBCheckpoint::Middleware::Logger do
     }
   end
 
+  let :last_log_line do
+    File.read(options[:log_file])
+        .split("\n")
+        .last
+  end
+
   it 'writes the request log to the logger file' do
     subject.call(request_env).last.close
-    log = JSON.parse(File.read(options[:log_file]))['message']
+    log = JSON.parse(last_log_line)['message']
 
     expect(log['remote_address']).to eql request_env['REMOTE_ADDR']
     expect(log['remote_user']).to eql request_env['REMOTE_USER']
@@ -60,7 +66,7 @@ describe PhobosDBCheckpoint::Middleware::Logger do
   context 'when request_env has HTTP_X_FORWARDED_FOR instead of REMOTE_ADDR' do
     it 'writes remote_address as HTTP_X_FORWARDED_FOR' do
       subject.call(request_env.merge('HTTP_X_FORWARDED_FOR' => '10.10.10.10')).last.close
-      log = JSON.parse(File.read(options[:log_file]))['message']
+      log = JSON.parse(last_log_line)['message']
       expect(log['remote_address']).to eql '10.10.10.10'
     end
   end
@@ -71,7 +77,7 @@ describe PhobosDBCheckpoint::Middleware::Logger do
     it 'writes the exception' do
       error = StandardError.new('some error!')
       subject.call(request_env.merge('sinatra.error' => error)).last.close
-      log = JSON.parse(File.read(options[:log_file]))['message']
+      log = JSON.parse(last_log_line)['message']
 
       expect(log['status']).to eql '500'
       expect(log['exception_class']).to eql StandardError.to_s
