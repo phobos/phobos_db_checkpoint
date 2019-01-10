@@ -1,7 +1,6 @@
-[![Build Status](https://travis-ci.org/klarna/phobos_db_checkpoint.svg?branch=travis)](https://travis-ci.org/klarna/phobos_db_checkpoint)
-[![Maintainability](https://api.codeclimate.com/v1/badges/6f508f2515a418568bd8/maintainability)](https://codeclimate.com/github/klarna/phobos_db_checkpoint/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/6f508f2515a418568bd8/test_coverage)](https://codeclimate.com/github/klarna/phobos_db_checkpoint/test_coverage)
-[![Chat with us on Discord](https://discordapp.com/api/guilds/379938130326847488/widget.png)](https://discord.gg/rfMUBVD)
+[![Build Status](https://travis-ci.com/phobos/phobos_db_checkpoint.svg?branch=travis)](https://travis-ci.com/phobos/phobos_db_checkpoint)
+[![Maintainability](https://api.codeclimate.com/v1/badges/9059dae9398ecf1e1dba/maintainability)](https://codeclimate.com/github/phobos/phobos_db_checkpoint/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/9059dae9398ecf1e1dba/test_coverage)](https://codeclimate.com/github/phobos/phobos_db_checkpoint/test_coverage)
 
 # Phobos DB Checkpoint
 
